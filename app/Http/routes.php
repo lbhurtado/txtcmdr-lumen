@@ -11,6 +11,38 @@
 |
 */
 
+
+class Pop extends Illuminate\Database\Eloquent\Model {
+
+}
+
 $app->get('/', function () use ($app) {
-    return $app->welcome();
+
+    $pop = new Pop;
+    $pop->cluster = 1;
+    $pop->precincts = '0001A,0001B,0001C';
+    $pop->save();
+
+    $pop = new Pop;
+    $pop->cluster = 3;
+    $pop->precincts = '0003A,0003B,0003C';
+    $pop->save();
+
+
+    return 'TxtCmdr';
+    //return $app->welcome('TxtCmdr');
+});
+
+$app->get('pop/{id}', function ($id) {
+    return Pop::findOrFail($id);
+});
+
+$app->get('cluster/{cluster}', function ($cluster) {
+    $query = Pop::where('cluster', '=', $cluster);
+    return $query->get();
+});
+
+$app->get('precinct/{precinct}', function ($precinct) {
+    $query = Pop::where('precincts', 'regexp', DB::raw('"[[:<:]]'.$precinct.'[[:>:]]"'));
+    return $query->get(array('cluster', 'precincts'));
 });
