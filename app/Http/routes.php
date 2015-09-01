@@ -49,15 +49,18 @@ $app->get('precinct/{precinct}', function ($precinct) {
 });
 
 $app->post('webhook', function (Request $request) {
-    if ($request->input('secret') === '87186188739312') {
-        if ($request->input('event') == 'incoming_message') {
-            header("Content-Type: application/json");
-            return json_encode(array(
-                'messages' => array(
-                    array('content' => "Thanks for your message!")
-                )
-            ));
+//    $app->post('webhook', function () {
+
+        if ($request->input('secret') === '87186188739312') {
+            if ($request->input('event') == 'incoming_message') {
+                header("Content-Type: application/json");
+                return json_encode(array(
+                    'messages' => array(
+                        array('content' => $request->input('contact.name') . ", thanks for your message!")
+                    )
+                ));
+            }
         }
-    }
-   //return 'The quick brown fox jumps over the lazy dog.';
-});
+
+        //return 'The quick brown fox jumps over the lazy dog.';
+    });
