@@ -12,6 +12,8 @@
 */
 
 use Illuminate\Http\Request;
+use Parse\ParseClient;
+use Parse\ParseObject;
 
 class Pop extends Illuminate\Database\Eloquent\Model {
 
@@ -44,7 +46,7 @@ $app->get('cluster/{cluster}', function ($cluster) {
 });
 
 $app->get('precinct/{precinct}', function ($precinct) {
-    $query = Pop::where('precincts', 'regexp', DB::raw('"[[:<:]]'.$precinct.'[[:>:]]"'));
+    $query = Pop::where('precincts', 'regexp', DB::raw('"[[:<:]](0*'.$precinct.')[[:>:]]"'));
     return $query->get(array('cluster', 'precincts'));
 });
 
@@ -63,4 +65,32 @@ $app->post('webhook', function (Request $request) {
         }
 
         //return 'The quick brown fox jumps over the lazy dog.';
-    });
+});
+
+ParseClient::initialize('U6CaTTyJ2AGXWLdF3bfl89eWYR2BbMWrEE73Ynsd', 'sz7rz1fuCIo4wRjNlM2lVrfuInsHbCRjr270tK8E', 'vfUXDTVhAxvjteuuNq2in1fYrG7KKtdSMvchj1Qg');
+
+$app->get('parse/object', function(){
+
+    $object = ParseObject::create("TestObject");
+    $objectId = $object->getObjectId();
+    $php = $object->get("elephant");
+
+// Set values:
+    $object->set("elephant", "php");
+    $object->set("today", new DateTime());
+    $object->setArray("mylist", [1, 2, 3]);
+    $object->setAssociativeArray(
+        "languageTypes", array("php" => "awesome", "ruby" => "wtf")
+    );
+
+// Save:
+    $object->save();
+    return 'object saved.';
+});
+
+$app->group(['prefix' => 'parse'], function ($app)
+{
+    $app->get('/', 'App\Http\Controllers\ParseController@index');
+    $app->post('initialize', 'App\Http\Controllers\ParseController@initialize');
+    $app->post('webhook', 'App\Http\Controllers\ParseController@webhook');
+});
