@@ -84,7 +84,7 @@ class ParseController extends Controller
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
 
-                return $request;
+                //return $request;
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
