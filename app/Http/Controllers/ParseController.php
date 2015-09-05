@@ -83,8 +83,9 @@ class ParseController extends Controller
     public function webhook(Request $request) {
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
+                $mobile = $request->input('contact_phone_number');
+                $results = ParseCloud::run("sendCode", array("phoneNumber" => $mobile), true);
 
-                //return $request;
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
@@ -122,7 +123,7 @@ class ParseController extends Controller
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
-                        array('content' => 'test')
+                        array('content' => 'OTP was sent.')
                     )
                 ));
             }
