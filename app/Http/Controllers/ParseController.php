@@ -85,7 +85,7 @@ class ParseController extends Controller
             if ($request->input('event') == 'incoming_message') {
 
                 $content = $request->input('content');
-                $content_array = explode($content, ' ');
+                $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
 
