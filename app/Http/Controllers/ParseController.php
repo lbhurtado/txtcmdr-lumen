@@ -133,13 +133,13 @@ class ParseController extends Controller
                                 $content . "\n" .
                                 $word1 . "\n" .
                                 $remainder1. "\n" .
-                                $status,
-                            'status.id' => 'step1'
+                                $status
                         )
                     ),
                     'variables' => array(
-                        'contact.name' => "John Smith",
-                        '$foo' => 42,
+                        'contact.name' => "Lester Hurtado",
+                        'status.id' => 'step1',
+                        '$foo' => 1991,
                     )
                 ));
             }
