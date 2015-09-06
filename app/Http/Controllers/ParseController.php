@@ -124,7 +124,9 @@ class ParseController extends Controller
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
-                        array('content' => $mobile . "=>" . $request->input('to_number'))
+                        array('content' => $mobile . "=>" . $request->input('to_number') . "\n" .
+                            $request->input('contact[name]')
+                        )
                     )
                 ));
             }
