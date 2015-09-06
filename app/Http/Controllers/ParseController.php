@@ -132,13 +132,12 @@ class ParseController extends Controller
                                 $request->input('contact.name') . "\n" .
                                 $content . "\n" .
                                 $word1 . "\n" .
-                                $remainder1. "\n" .
-                                $status
+                                $remainder1. "\n"
                         )
                     ),
                     'variables' => array(
                         'contact.name' => "Lester Hurtado",
-                        'status.id' => 'step1',
+                        'state.id' => 'step1',
                         '$foo' => 1991,
                     )
                 ));
