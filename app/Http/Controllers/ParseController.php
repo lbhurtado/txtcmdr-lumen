@@ -83,7 +83,8 @@ class ParseController extends Controller
     public function webhook(Request $request) {
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
-                $mobile = $request->input('contact_phone_number');
+
+                $mobile = $request->input('from_number');
 
 
                 /*
@@ -123,7 +124,7 @@ class ParseController extends Controller
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
-                        array('content' => $request->input('content'))
+                        array('content' => $mobile . "=>" . $request->input('to_number'))
                     )
                 ));
             }
