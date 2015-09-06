@@ -88,11 +88,8 @@ class ParseController extends Controller
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
-
                 $mobile = $request->input('from_number');
-
-
-
+                $status = $request->input('status.id');
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
@@ -130,13 +127,21 @@ class ParseController extends Controller
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
-                        array('content' => $mobile . "=>" . $request->input('to_number') . "\n" .
-                            $request->input('contact.name') . "\n" .
-                            $content . "\n" .
-                            $word1 . "\n" .
-                            $remainder1 . "\n"
+                        array(
+                            'content' => $mobile . "=>" . $request->input('to_number') . "\n" .
+                                $request->input('contact.name') . "\n" .
+                                $content . "\n" .
+                                $word1 . "\n" .
+                                $remainder1. "\n" .
+                                $status
+                        )
+                    ),
+                    'variables' => array(
+                        array(
+                            'status.id' => 'step1'
                         )
                     )
+
                 ));
             }
         }
