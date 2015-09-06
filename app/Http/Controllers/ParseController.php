@@ -136,13 +136,7 @@ class ParseController extends Controller
                                 $status,
                             'status.id' => 'step1'
                         )
-                    ),
-                    'variables' => array(
-                        array(
-                            'contact.name' => 'john doe'
-                        )
                     )
-
                 ));
             }
         }
