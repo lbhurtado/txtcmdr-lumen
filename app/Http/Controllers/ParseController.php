@@ -89,7 +89,7 @@ class ParseController extends Controller
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
-                $status = $request->input('status.id');
+                $status = $request->input('state.id');
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
@@ -132,12 +132,13 @@ class ParseController extends Controller
                                 $request->input('contact.name') . "\n" .
                                 $content . "\n" .
                                 $word1 . "\n" .
-                                $remainder1. "\n"
+                                $remainder1. "\n" .
+                                $status
                         )
                     ),
                     'variables' => array(
                         'contact.name' => "Lester Hurtado",
-                        'state.id' => 'step1',
+                        'state.id' => 'step2',
                         '$foo' => 1991,
                     )
                 ));
