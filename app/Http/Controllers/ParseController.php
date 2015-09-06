@@ -84,7 +84,13 @@ class ParseController extends Controller
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
 
+                $content = $request->input('content');
+                $content_array = explode($content, ' ');
+                $word1 = array_shift($content_array);
+                $remainder1 = implode(' ', $content_array);
+
                 $mobile = $request->input('from_number');
+
 
 
                 /*
@@ -126,7 +132,8 @@ class ParseController extends Controller
                     'messages' => array(
                         array('content' => $mobile . "=>" . $request->input('to_number') . "\n" .
                             $request->input('contact.name') . "\n" .
-                            $request->input('word1')
+                            $word1 . "\n" .
+                            $remainder11 . "\n"
                         )
                     )
                 ));
