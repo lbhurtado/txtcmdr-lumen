@@ -125,7 +125,8 @@ class ParseController extends Controller
                 return json_encode(array(
                     'messages' => array(
                         array('content' => $mobile . "=>" . $request->input('to_number') . "\n" .
-                            $request->input('contact.name')
+                            $request->input('contact.name') . "\n" .
+                            $request->input('word1')
                         )
                     )
                 ));
