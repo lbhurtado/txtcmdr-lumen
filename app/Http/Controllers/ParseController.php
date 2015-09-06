@@ -138,7 +138,7 @@ class ParseController extends Controller
                     ),
                     'variables' => array(
                         'contact.name' => "Lester Hurtado",
-                        'state.id' => 'step2',
+                        'state.id' => 'step3',
                         '$foo' => 1991,
                     )
                 ));
