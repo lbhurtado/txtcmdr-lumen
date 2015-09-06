@@ -133,7 +133,7 @@ class ParseController extends Controller
                         array('content' => $mobile . "=>" . $request->input('to_number') . "\n" .
                             $request->input('contact.name') . "\n" .
                             $word1 . "\n" .
-                            $remainder11 . "\n"
+                            $remainder1 . "\n"
                         )
                     )
                 ));
