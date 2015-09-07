@@ -147,7 +147,8 @@ class ParseController extends Controller
 
 
                 $args = $this->parse_args($content);
-                $reply = 'default reply';
+                $reply = $args['mobile'];
+                /*
                 switch (true) {
                     case $args['REQUEST_OTP']:
                         if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
@@ -175,7 +176,7 @@ class ParseController extends Controller
                     default:
                         echo 'default';
                 }
-
+                */
 
                 /*
                 $query = ParseUser::query();
