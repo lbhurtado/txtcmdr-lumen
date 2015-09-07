@@ -146,34 +146,38 @@ class ParseController extends Controller
                 $mobile = $request->input('from_number');
                 $state = $request->input('state.id');
 
-                switch ($word1) {
-                    case 'REQUEST_OTP':
-                        if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
-                            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-                            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
-                            if (!$user) {
-                                $user = new ParseUser();
-                                $user->setUsername($mobile);
-                                $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
-                                $user->setPassword(SECRET . $num);
-                                $user->setACL(new ParseACL());
-                                $user->set("phone", $mobile);
-                                try {
-                                    $user->signUp(true);
+                switch ($state) {
+                    case '':
+                        switch ($word1) {
+                            case 'REQUEST_OTP':
+                                if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
+                                    $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+                                    $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
+                                    if (!$user) {
+                                        $user = new ParseUser();
+                                        $user->setUsername($mobile);
+                                        $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
+                                        $user->setPassword(SECRET . $num);
+                                        $user->setACL(new ParseACL());
+                                        $user->set("phone", $mobile);
+                                        try {
+                                            $user->signUp(true);
 
-                                } catch (ParseException $ex) {
-                                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                                        } catch (ParseException $ex) {
+                                            echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                                        }
+                                        $reply = "The OTP was already sent to $mobile.";
+                                        $forward = "Your OTP is $num";
+                                    }
                                 }
-                                $reply = "The OTP was already sent to $mobile.";
-                                $forward = "Your OTP is $num";
-                            }
-                        }
 
+                                break;
+                            case $args['CONSUME_OTP']:
+                                break;
+                            default:
+                                echo 'default';
+                        }
                         break;
-                    case $args['CONSUME_OTP']:
-                        break;
-                    default:
-                        echo 'default';
                 }
 
 
