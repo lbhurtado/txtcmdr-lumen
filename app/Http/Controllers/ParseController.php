@@ -203,7 +203,6 @@ class ParseController extends Controller
                 }
             }
             else {
-                //$user = $results[0];
                 $user->set("password", SECRET . $num);
                 $user->save(true);
             }
