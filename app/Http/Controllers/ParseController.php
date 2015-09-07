@@ -300,12 +300,29 @@ class ParseController extends Controller
                 ),
                 'variables' => array(
                     'state.id' => 'verifying',
+                    'contact.vars.recruit' => $mobile,
                 )
             ));
         }
     }
 
     public function enterPIN (Request $request) {
+        $mobile = $request->input('mobile');
+        $code = $request->input('code');
+        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
+            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+            $num = $request->input('code');
+            try {
+                $user = ParseUser::logIn($mobile, SECRET . $num);
+            } catch (ParseException $error) {
+                echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+            }
+            return $user->username;
+        }
+        return 'Failed!';
+    }
+
+    public function verify (Request $request) {
         $mobile = $request->input('mobile');
         $code = $request->input('code');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
