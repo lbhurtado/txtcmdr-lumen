@@ -15,6 +15,8 @@ use Parse\ParseACL;
 define('SECRET','87186188739312');
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
 define('VALID_MOBILE_PATTERN', "/^(" . "?P<country>0" . "|" . "63" . ")(?P<mobile>\d{10})$/");
+define('RANDOM_FLOOR', 1000);
+define('RANDOM_CEILING', 9999);
 
 class ParseController extends Controller
 {
@@ -85,16 +87,106 @@ class ParseController extends Controller
         }
     }
 
+    function parse_args($args) {
+        $out = array();
+        $last_arg = null;
+        if(is_string($args)){
+            $args = str_replace(array('=', "\'", '\"'), array('= ', '&#39;', '&#34;'), $args);
+            $args = str_getcsv($args, ' ', '"');
+            $tmp = array();
+            foreach($args as $arg){
+                if(!empty($arg) && $arg != "&#39;" && $arg != "=" && $arg != " "){
+                    $tmp[] = str_replace(array('= ', '&#39;', '&#34;'), array('=', "'", '"'), trim($arg));
+                }
+            }
+            $args = $tmp;
+        }
+        for($i = 0, $il = sizeof($args); $i < $il; $i++){
+            if( (bool)preg_match("/^--(.+)/", $args[$i], $match) ){
+                $parts = explode("=", $match[1]);
+                $key = preg_replace("/[^a-zA-Z0-9-]+/", "", $parts[0]);
+                if(isset($args[$i+1]) && substr($args[$i],0,2) == '--'){
+                    $out[$key] = $args[$i+1];
+                    $i++;
+                }else if(isset($parts[1])){
+                    $out[$key] = $parts[1];
+                }else{
+                    $out[$key] = true;
+                }
+                $last_arg = $key;
+            }else if( (bool)preg_match("/^-([a-zA-Z0-9]+)/", $args[$i], $match) ){
+                $len = strlen($match[1]);
+                for( $j = 0, $jl = $len; $j < $jl; $j++ ){
+                    $key = $match[1]{$j};
+                    $val = ($args[$i+1]) ? $args[$i+1]: true;
+                    $out[$key] = ($match[0]{$len} == $match[1]{$j}) ? $val : true;
+                }
+                $last_arg = $key;
+            }else if((bool) preg_match("/^([a-zA-Z0-9-]+)$/", $args[$i], $match) ){
+                $key = $match[0];
+                $out[$key] = true;
+                $last_arg = $key;
+            }else if($last_arg !== null) {
+                $out[$last_arg] = $args[$i];
+            }
+        }
+        return $out;
+        $str = 'yankee -D "oo\"d l e\'s" -went "2 town 2 buy him-self" -a pony --calledit=" \"macaroonis\' "';
+    }
+
     public function webhook(Request $request) {
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
-
                 $content = $request->input('content');
+                /*
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
                 $status = $request->input('state.id');
+                */
+
+                $args = $this->parse_args($content);
+                switch (true) {
+                    case $args['REQUEST_OTP']:
+                        if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
+                            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+                            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
+                            if (!$user) {
+                                $user = new ParseUser();
+                                $user->setUsername($mobile);
+                                $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
+                                $user->setPassword(SECRET . $num);
+                                $user->setACL(new ParseACL());
+                                $user->set("phone", $mobile);
+                                try {
+                                    $user->signUp(true);
+
+                                } catch (ParseException $ex) {
+                                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                                }
+                                return json_encode(array(
+                                    'messages' => array(
+                                        array(
+                                            'content' => "The PIN was already send to $mobile."
+                                        ),
+                                        array(
+                                            'content' => "Your PIN is $num.",
+                                            'to_number' => $mobile
+                                        ),
+                                    ),
+                                    'variables' => array(
+                                        'state.id' => 'request_otp',
+                                    )
+                                ));
+                            }
+                        }
+                        break;
+                    case $args['CONSUME_OTP']:
+                        break;
+                    default:
+                        echo 'default';
+                }
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
@@ -129,7 +221,8 @@ class ParseController extends Controller
                     ));
                 }
                 */
-                header("Content-Type: application/json");
+
+                /*
                 return json_encode(array(
                     'messages' => array(
                         array(
@@ -148,6 +241,7 @@ class ParseController extends Controller
                         '$foo' => 1991,
                     )
                 ));
+                */
             }
         }
         return 'nan';
@@ -180,22 +274,18 @@ class ParseController extends Controller
     }
 
     public function sendOTP (Request $request) {
-
-        define('RANDOM_FLOOR', 1000);
-        define('RANDOM_CEILING', 9999);
-
         $mobile = $request->input('mobile');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $min = 1000;
-            $max = 9999;
             $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
             $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
             if (!$user) {
                 $user = new ParseUser();
-                $user->set("username", $mobile);
-                $user->set("password", SECRET . $num);
+                $user->setUsername($mobile);
+                $user->setEmail($mobile."@mhandle.net");
+                $user->setPassword(SECRET . $num);
                 $user->setACL(new ParseACL());
+                $user->set("phone", $mobile);
                 try {
                     $user->signUp(true);
                 } catch (ParseException $ex) {
@@ -225,5 +315,10 @@ class ParseController extends Controller
             return $user->username;
         }
         return 'Failed!';
+    }
+
+    public function args(Request $request) {
+        $str = $request->input('text');
+        dd($this->parse_args($str));
     }
 }
