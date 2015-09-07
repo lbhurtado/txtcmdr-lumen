@@ -236,7 +236,7 @@ class ParseController extends Controller
                 return json_encode(array(
                     'messages' => array(
                         array(
-                            'content' => $reply;
+                            'content' => $reply
                         )
                     ),
                     'variables' => array(
