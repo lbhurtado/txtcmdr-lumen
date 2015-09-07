@@ -149,7 +149,7 @@ class ParseController extends Controller
 
                 switch ($state) {
                     case NO_STATE:
-                        switch ($word1) {
+                        switch (strtoupper($word1)) {
                             case 'RECRUIT':
                                 $mobile = $remainder1;
                                 if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
@@ -167,7 +167,6 @@ class ParseController extends Controller
                                         } catch (ParseException $ex) {
                                             echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                                         }
-
                                         header("Content-Type: application/json");
                                         return json_encode(array(
                                             'messages' => array(
@@ -184,6 +183,19 @@ class ParseController extends Controller
                                             )
                                         ));
                                     }
+                                }
+                                else {
+                                    header("Content-Type: application/json");
+                                    return json_encode(array(
+                                        'messages' => array(
+                                            array(
+                                                'content' => "You are now in recruiting mode. Please enter mobile number of your recruit:"
+                                            )
+                                        ),
+                                        'variables' => array(
+                                            'state.id' => 'recruiting',
+                                        )
+                                    ));
                                 }
                                 break;
                         }
