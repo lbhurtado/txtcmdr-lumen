@@ -201,7 +201,7 @@ class ParseController extends Controller
                         }
                         break;
                     case 'recruiting':
-                        $this->recruit($request);
+                        return $this->recruit($request);
                         break;
                 }
 
