@@ -11,12 +11,14 @@ use Parse\ParseUser;
 use Parse\ParseQuery;
 use Parse\ParseCloud;
 use Parse\ParseACL;
+use Parse\ParseException;
 
 define('SECRET','87186188739312');
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
 define('VALID_MOBILE_PATTERN', "/^(" . "?P<country>0" . "|" . "63" . ")(?P<mobile>\d{10})$/");
 define('RANDOM_FLOOR', 1000);
 define('RANDOM_CEILING', 9999);
+define('NO_STATE', '');
 
 class ParseController extends Controller
 {
@@ -139,7 +141,6 @@ class ParseController extends Controller
             if ($request->input('event') == 'incoming_message') {
                 $content = $request->input('content');
                 $args = $this->parse_args($content);
-
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
@@ -147,10 +148,11 @@ class ParseController extends Controller
                 $state = $request->input('state.id');
 
                 switch ($state) {
-                    case '':
+                    case NO_STATE:
                         switch ($word1) {
-                            case 'REQUEST_OTP':
-                                if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
+                            case 'RECRUIT':
+                                $mobile = $remainder1;
+                                if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
                                     $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
                                     $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
                                     if (!$user) {
@@ -162,12 +164,25 @@ class ParseController extends Controller
                                         $user->set("phone", $mobile);
                                         try {
                                             $user->signUp(true);
-
                                         } catch (ParseException $ex) {
                                             echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                                         }
-                                        $reply = "The OTP was already sent to $mobile.";
-                                        $forward = "Your OTP is $num";
+
+                                        header("Content-Type: application/json");
+                                        return json_encode(array(
+                                            'messages' => array(
+                                                array(
+                                                    'content' => "The OTP was already sent to $mobile."
+                                                ),
+                                                array(
+                                                    'content' => "Your OTP is $num",
+                                                    'to_number' => $mobile,
+                                                ),
+                                            ),
+                                            'variables' => array(
+                                                'state.id' => 'recruiting',
+                                            )
+                                        ));
                                     }
                                 }
                                 break;
@@ -175,67 +190,6 @@ class ParseController extends Controller
                         break;
                 }
 
-
-                /*
-                $query = ParseUser::query();
-                $query->equalTo("phone", $request->input('contact_phone_number'));
-                $results = $query->find();
-                if (count($results) == 0) {
-                    $user = new ParseUser();
-                    $user->set("username", $request->input('contact_name'));
-                    $user->set("password", "password");
-                    $user->set("phone", $request->input('contact_phone_number'));
-                    try {
-                        $user->signUp();
-                        // Hooray! Let them use the app now.
-                    } catch (ParseException $ex) {
-                        // Show the error message somewhere and let the user try again.
-                        echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-                    }
-                }
-                else {
-                    try {
-                        $user = ParseUser::logIn($request->input('contact_name'), "password");
-
-                        // Do stuff after successful login.
-                    } catch (ParseException $error) {
-                        // The login failed. Check error to see why.
-                    }
-
-                    header("Content-Type: application/json");
-                    return json_encode(array(
-                        'messages' => array(
-                            array('content' => $request->input('contact_name'))
-                        )
-                    ));
-                }
-                */
-
-                $reply2 = $mobile . "=>" . $request->input('to_number') . "\n" .
-                                $request->input('contact.name') . "\n" .
-                                $content . "\n" .
-                                $word1 . "\n" .
-                                $remainder1. "\n" .
-                                $state;
-
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array(
-                            'content' => $reply
-                        ),
-                        array(
-                            'content' => $forward,
-                            'to_number' => $mobile,
-                        ),
-                    ),
-                    'variables' => array(
-                        'contact.name' => "Lester Hurtado",
-                        'contact.vars.otp' => '0421',
-                        'state.id' => 'step3',
-                        '$foo' => 1987,
-                    )
-                ));
 
             }
         }
