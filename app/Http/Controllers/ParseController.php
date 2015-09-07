@@ -149,10 +149,9 @@ class ParseController extends Controller
 
 
                 $reply = json_encode($args);
-                /*
-                switch (true) {
-                    case $args['REQUEST_OTP']:
 
+                switch ($word1) {
+                    case 'REQUEST_OTP':
                         if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
                             $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
                             $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
@@ -180,7 +179,7 @@ class ParseController extends Controller
                         echo 'default';
                 }
 
-                */
+
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
