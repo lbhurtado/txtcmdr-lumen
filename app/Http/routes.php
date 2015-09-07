@@ -94,4 +94,6 @@ $app->group(['prefix' => 'parse'], function ($app) {
     $app->post( 'webhook',      'App\Http\Controllers\ParseController@webhook');
     $app->post( 'sendcode',     'App\Http\Controllers\ParseController@sendcode');
     $app->post( 'login',        'App\Http\Controllers\ParseController@login');
+    $app->post( 'sendotp',      'App\Http\Controllers\ParseController@sendotp');
+    $app->post( 'enterpin',     'App\Http\Controllers\ParseController@enterpin');
 });
