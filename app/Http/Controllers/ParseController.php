@@ -270,10 +270,10 @@ class ParseController extends Controller
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
+            $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
             if (!$user) {
                 $user = new ParseUser();
                 $user->setUsername($mobile);
-                $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
                 $user->setPassword(SECRET . $num);
                 $user->setACL(new ParseACL());
                 $user->set("phone", $mobile);
@@ -287,23 +287,22 @@ class ParseController extends Controller
                 $user->set("password", SECRET . $num);
                 $user->save(true);
             }
+            header("Content-Type: application/json");
+            return json_encode(array(
+                'messages' => array(
+                    array(
+                        'content' => "The OTP was already sent to $mobile."
+                    ),
+                    array(
+                        'content' => "Your OTP is $num",
+                        'to_number' => $mobile,
+                    ),
+                ),
+                'variables' => array(
+                    'state.id' => 'verifying',
+                )
+            ));
         }
-
-        header("Content-Type: application/json");
-        return json_encode(array(
-            'messages' => array(
-                array(
-                    'content' => "The OTP was already sent to $mobile."
-                ),
-                array(
-                    'content' => "Your OTP is $num",
-                    'to_number' => $mobile,
-                ),
-            ),
-            'variables' => array(
-                'state.id' => 'recruiting',
-            )
-        ));
     }
 
     public function enterPIN (Request $request) {
