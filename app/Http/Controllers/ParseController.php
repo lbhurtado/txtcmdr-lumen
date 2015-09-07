@@ -189,7 +189,7 @@ class ParseController extends Controller
                         echo 'default';
                 }
                 */
-                
+
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
@@ -225,16 +225,18 @@ class ParseController extends Controller
                 }
                 */
 
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array(
-                            'content' => $mobile . "=>" . $request->input('to_number') . "\n" .
+                $reply = $mobile . "=>" . $request->input('to_number') . "\n" .
                                 $request->input('contact.name') . "\n" .
                                 $content . "\n" .
                                 $word1 . "\n" .
                                 $remainder1. "\n" .
-                                $status
+                                $status;
+
+                header("Content-Type: application/json");
+                return json_encode(array(
+                    'messages' => array(
+                        array(
+                            'content' => $reply;
                         )
                     ),
                     'variables' => array(
