@@ -147,7 +147,7 @@ class ParseController extends Controller
 
 
                 $args = $this->parse_args($content);
-                /*
+                $reply = 'default reply';
                 switch (true) {
                     case $args['REQUEST_OTP']:
                         if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
@@ -166,20 +166,7 @@ class ParseController extends Controller
                                 } catch (ParseException $ex) {
                                     echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                                 }
-                                return json_encode(array(
-                                    'messages' => array(
-                                        array(
-                                            'content' => "The PIN was already send to $mobile."
-                                        ),
-                                        array(
-                                            'content' => "Your PIN is $num.",
-                                            'to_number' => $mobile
-                                        ),
-                                    ),
-                                    'variables' => array(
-                                        'state.id' => 'request_otp',
-                                    )
-                                ));
+                                $reply = "The OTP was already sent to $mobile.";
                             }
                         }
                         break;
@@ -188,7 +175,7 @@ class ParseController extends Controller
                     default:
                         echo 'default';
                 }
-                */
+
 
                 /*
                 $query = ParseUser::query();
@@ -225,7 +212,7 @@ class ParseController extends Controller
                 }
                 */
 
-                $reply = $mobile . "=>" . $request->input('to_number') . "\n" .
+                $reply2 = $mobile . "=>" . $request->input('to_number') . "\n" .
                                 $request->input('contact.name') . "\n" .
                                 $content . "\n" .
                                 $word1 . "\n" .
