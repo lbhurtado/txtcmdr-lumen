@@ -203,9 +203,10 @@ class ParseController extends Controller
                     case 'recruiting':
                         return $this->recruit($request);
                         break;
+                    case 'verifying':
+                        return $this->verify($request);
+                        break;
                 }
-
-
             }
         }
         return 'nan';
@@ -323,19 +324,45 @@ class ParseController extends Controller
     }
 
     public function verify (Request $request) {
-        $mobile = $request->input('mobile');
-        $code = $request->input('code');
+        $mobile = $request->input('contact.vars.recruit');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $num = $request->input('code');
+            $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
+                header("Content-Type: application/json");
+                return json_encode(array(
+                    'messages' => array(
+                        array(
+                            'content' => "OTP is valid."
+                        ),
+                        array(
+                            'content' => "Your OTP is valid.  Congratulations!",
+                            'to_number' => $mobile,
+                        ),
+                    ),
+                    'variables' => array(
+                        'state.id' => 'recruiting',
+                        'contact.vars.recruit' => null,
+                    )
+                ));
             } catch (ParseException $error) {
                 echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                header("Content-Type: application/json");
+                return json_encode(array(
+                    'messages' => array(
+                        array(
+                            'content' => "OTP is not valid!" . $ex->getMessage() . " Please try again."
+                        )
+                    ),
+                    'variables' => array(
+                        'state.id' => 'verifying',
+                        'contact.vars.recruit' => $mobile,
+                    )
             }
-            return $user->username;
+
         }
-        return 'Failed!';
+        return false;
     }
 
     public function args(Request $request) {
