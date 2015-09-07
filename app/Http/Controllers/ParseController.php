@@ -138,6 +138,7 @@ class ParseController extends Controller
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
                 $content = $request->input('content');
+                $args = $this->parse_args($content);
 
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
@@ -146,9 +147,9 @@ class ParseController extends Controller
                 $status = $request->input('state.id');
 
 
-                $args = $this->parse_args($content);
+
                 $reply = json_encode($args);
-                /*
+
                 switch (true) {
                     case $args['REQUEST_OTP']:
                         if (preg_match(VALID_MOBILE_PATTERN, $args['mobile'], $matches)) {
@@ -176,7 +177,7 @@ class ParseController extends Controller
                     default:
                         echo 'default';
                 }
-                */
+                
 
                 /*
                 $query = ParseUser::query();
