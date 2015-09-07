@@ -352,7 +352,7 @@ class ParseController extends Controller
                 return json_encode(array(
                     'messages' => array(
                         array(
-                            'content' => "OTP is not valid!" . $ex->getMessage() . " Please try again."
+                            'content' => "OTP is not valid! Please try again."
                         )
                     ),
                     'variables' => array(
