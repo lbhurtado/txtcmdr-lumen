@@ -189,13 +189,7 @@ class ParseController extends Controller
                         echo 'default';
                 }
                 */
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array('content' => implode(' ', $args));
-                    )
-                ));
-
+                
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
