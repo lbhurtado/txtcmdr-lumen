@@ -144,11 +144,7 @@ class ParseController extends Controller
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
-                $status = $request->input('state.id');
-
-
-
-                $reply = json_encode($args);
+                $state = $request->input('state.id');
 
                 switch ($word1) {
                     case 'REQUEST_OTP':
@@ -169,6 +165,7 @@ class ParseController extends Controller
                                     echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                                 }
                                 $reply = "The OTP was already sent to $mobile.";
+                                $forward = "Your OTP is $num";
                             }
                         }
 
@@ -220,14 +217,18 @@ class ParseController extends Controller
                                 $content . "\n" .
                                 $word1 . "\n" .
                                 $remainder1. "\n" .
-                                $status;
+                                $state;
 
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
                         array(
                             'content' => $reply
-                        )
+                        ),
+                        array(
+                            'content' => $forward,
+                            'to_number' => $mobile,
+                        ),
                     ),
                     'variables' => array(
                         'contact.name' => "Lester Hurtado",
