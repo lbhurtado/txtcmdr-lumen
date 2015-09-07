@@ -138,13 +138,13 @@ class ParseController extends Controller
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
                 $content = $request->input('content');
-                /*
+
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
                 $status = $request->input('state.id');
-                */
+                
 
                 $args = $this->parse_args($content);
                 switch (true) {
@@ -222,7 +222,7 @@ class ParseController extends Controller
                 }
                 */
 
-                /*
+
                 return json_encode(array(
                     'messages' => array(
                         array(
@@ -238,10 +238,10 @@ class ParseController extends Controller
                         'contact.name' => "Lester Hurtado",
                         'contact.vars.otp' => '0421',
                         'state.id' => 'step3',
-                        '$foo' => 1991,
+                        '$foo' => 1987,
                     )
                 ));
-                */
+
             }
         }
         return 'nan';
