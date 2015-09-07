@@ -144,8 +144,8 @@ class ParseController extends Controller
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
                 $status = $request->input('state.id');
-                
 
+                /*
                 $args = $this->parse_args($content);
                 switch (true) {
                     case $args['REQUEST_OTP']:
@@ -187,6 +187,7 @@ class ParseController extends Controller
                     default:
                         echo 'default';
                 }
+                */
                 /*
                 $query = ParseUser::query();
                 $query->equalTo("phone", $request->input('contact_phone_number'));
