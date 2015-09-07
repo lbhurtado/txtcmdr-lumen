@@ -10,6 +10,11 @@ use Parse\ParseObject;
 use Parse\ParseUser;
 use Parse\ParseQuery;
 use Parse\ParseCloud;
+use Parse\ParseACL;
+
+define('SECRET','87186188739312');
+define('DEFAULT_INTERNATIONAL_PREFIX', '63');
+define('VALID_MOBILE_PATTERN', "/^(" . "?P<country>0" . "|" . "63" . ")(?P<mobile>\d{10})$/");
 
 class ParseController extends Controller
 {
@@ -149,18 +154,22 @@ class ParseController extends Controller
     }
 
     public function sendCode (Request $request) {
-        $results = ParseCloud::run("sendCode", array("phoneNumber" => "3104992907"), true);
-        if  (varIsNull($results))
-            return 'OTP sent';
+        $mobile = $request->input('mobile');
+        $results = ParseCloud::run("sendCode", array("phoneNumber" => $mobile), true);
+        //if  (varIsNull($results))
+            return get_class($results);
         //return $request;
     }
 
     public function login (Request $request) {
-        $results = ParseCloud::run("logIn", array("codeEntry" => "8432", "phoneNumber" => "3104992907"), true);
+        $mobile = $request->input('mobile');
+        $code = $request->input('code');
+        $results = ParseCloud::run("logIn", array("codeEntry" => $code, "phoneNumber" => $mobile), true);
 
         try {
             $user = ParseUser::become($results);
-            echo $user->getObjectId();
+            echo $user->getEmail();
+
             // The current user is now set to user.
         } catch (ParseException $ex) {
             dd($ex);
@@ -168,5 +177,54 @@ class ParseController extends Controller
 
         return json_encode($request);
 
+    }
+
+    public function sendOTP (Request $request) {
+
+        define('RANDOM_FLOOR', 1000);
+        define('RANDOM_CEILING', 9999);
+
+        $mobile = $request->input('mobile');
+        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
+            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+            $min = 1000;
+            $max = 9999;
+            $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
+            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
+            if (!$user) {
+                $user = new ParseUser();
+                $user->set("username", $mobile);
+                $user->set("password", SECRET . $num);
+                $user->setACL(new ParseACL());
+                try {
+                    $user->signUp(true);
+                } catch (ParseException $ex) {
+                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                }
+            }
+            else {
+                //$user = $results[0];
+                $user->set("password", SECRET . $num);
+                $user->save(true);
+            }
+        }
+
+        return $num;
+    }
+
+    public function enterPIN (Request $request) {
+        $mobile = $request->input('mobile');
+        $code = $request->input('code');
+        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
+            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+            $num = $request->input('code');
+            try {
+                $user = ParseUser::logIn($mobile, SECRET . $num);
+            } catch (ParseException $error) {
+                echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+            }
+            return $user->username;
+        }
+        return 'Failed!';
     }
 }
