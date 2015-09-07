@@ -359,6 +359,7 @@ class ParseController extends Controller
                         'state.id' => 'verifying',
                         'contact.vars.recruit' => $mobile,
                     )
+                ));
             }
 
         }
