@@ -170,12 +170,7 @@ class ParseController extends Controller
                                         $forward = "Your OTP is $num";
                                     }
                                 }
-
                                 break;
-                            case $args['CONSUME_OTP']:
-                                break;
-                            default:
-                                echo 'default';
                         }
                         break;
                 }
