@@ -347,7 +347,7 @@ class ParseController extends Controller
                     )
                 ));
             } catch (ParseException $error) {
-                echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 header("Content-Type: application/json");
                 return json_encode(array(
                     'messages' => array(
