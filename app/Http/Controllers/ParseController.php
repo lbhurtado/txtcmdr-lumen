@@ -147,7 +147,7 @@ class ParseController extends Controller
 
 
                 $args = $this->parse_args($content);
-                $reply = $args['mobile'];
+                $reply = json_encode($args);
                 /*
                 switch (true) {
                     case $args['REQUEST_OTP']:
