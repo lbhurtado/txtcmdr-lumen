@@ -198,13 +198,14 @@ class ParseController extends Controller
 
                                     //$tele = new Telehook("Testing 123");
                                     //unset($tele);
-
+/*
                                     $data = array(
                                         'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
                                         'variables' => array(
                                             'state.id' => "recruiting",
                                         ),
                                     );
+*/
                                     //var_dump($data);
 
 
