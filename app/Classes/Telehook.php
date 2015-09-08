@@ -53,7 +53,7 @@ class Telehook
         return static::getInstance();
     }
 
-    public function appendVariable($pipe_delimited_text)
+    public function addVariable($pipe_delimited_text)
     {
         $var = explode('|', $pipe_delimited_text);
         self::$variables[$var[0]] = $var[1];
