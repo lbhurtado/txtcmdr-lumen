@@ -12,6 +12,7 @@ use Parse\ParseQuery;
 use Parse\ParseCloud;
 use Parse\ParseACL;
 use Parse\ParseException;
+use App\Classes\Telehook;
 
 define('SECRET','87186188739312');
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
@@ -186,7 +187,9 @@ class ParseController extends Controller
                                             'state.id' => "recruiting",
                                         ),
                                     );
-                                    return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+                                    $data = new Telehook("You are now in recruiting mode. Please enter mobile number of your recruit:");
+                                    $data->AddVariable('state.id|recuiting');
+                                    return response(view('webhook', $data->getData()), 200, ['Content-Type' => "application/json"]);
                                 }
                                 break;
                         }
@@ -338,18 +341,6 @@ class ParseController extends Controller
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             } catch (ParseException $error) {
                 //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array(
-                            'content' => "OTP is not valid! Please try again."
-                        )
-                    ),
-                    'variables' => array(
-                        'state.id' => 'verifying',
-                        'contact.vars.recruit' => $mobile,
-                    )
-                ));
                 $data = array(
                     'reply' => "OTP is not valid! Please try again.",
                     'variables' => array(
@@ -365,7 +356,14 @@ class ParseController extends Controller
     }
 
     public function args(Request $request) {
-        $str = $request->input('text');
-        dd($this->parse_args($str));
+        //$str = $request->input('text');
+        //dd($this->parse_args($str));
+        $telehook = new Telehook();
+        $telehook->AddReply('this is a reply')
+            ->AddForward('09189362340|Yes yes yo.')
+            ->AddForward('09189362339|"Kring kring"')
+            ->AddVariable('state.id|recruiting');
+        dd ($telehook->getData());
+
     }
 }
