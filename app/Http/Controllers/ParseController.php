@@ -181,7 +181,7 @@ class ParseController extends Controller
                                     }
                                 }
                                 else {
-/*
+
                                     $data = array(
                                         'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
                                         'variables' => array(
@@ -189,7 +189,7 @@ class ParseController extends Controller
                                         ),
                                     );
                                     var_dump($data);
-*/
+
 
                                     $data1 = array(
                                         'reply' => "Testing 123",
@@ -201,7 +201,7 @@ class ParseController extends Controller
                                     //$tele->generateData($data2);
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
-                                    $data = Telehook::staticMethod();
+                                    $data1 = Telehook::staticMethod();
                                     return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
                                 }
                                 break;
