@@ -188,7 +188,7 @@ class ParseController extends Controller
                                             'state.id' => "recruiting",
                                         ),
                                     );
-                                    var_dump($data);
+                                    //var_dump($data);
 
 
                                     $data1 = array(
