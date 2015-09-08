@@ -22,6 +22,7 @@ define('RANDOM_FLOOR', 1000);
 define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
 
+/*
 class WebhookHelper {
     public static $reply;
 
@@ -59,6 +60,7 @@ class WebhookHelper {
         return $ar;
     }
 }
+*/
 
 class ParseController extends Controller
 {
@@ -243,14 +245,6 @@ class ParseController extends Controller
         return 'nan';
     }
 
-    public function sendCode (Request $request) {
-        $mobile = $request->input('mobile');
-        $results = ParseCloud::run("sendCode", array("phoneNumber" => $mobile), true);
-        //if  (varIsNull($results))
-            return get_class($results);
-        //return $request;
-    }
-
     public function login (Request $request) {
         $mobile = $request->input('mobile');
         $code = $request->input('code');
@@ -267,34 +261,6 @@ class ParseController extends Controller
 
         return json_encode($request);
 
-    }
-
-    public function sendOTP (Request $request) {
-        $mobile = $request->input('mobile');
-        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
-            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
-            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
-            if (!$user) {
-                $user = new ParseUser();
-                $user->setUsername($mobile);
-                $user->setEmail($mobile."@mhandle.net");
-                $user->setPassword(SECRET . $num);
-                $user->setACL(new ParseACL());
-                $user->set("phone", $mobile);
-                try {
-                    $user->signUp(true);
-                } catch (ParseException $ex) {
-                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-                }
-            }
-            else {
-                $user->set("password", SECRET . $num);
-                $user->save(true);
-            }
-        }
-
-        return $num;
     }
 
     public function recruit (Request $request) {
@@ -319,18 +285,6 @@ class ParseController extends Controller
                 $user->set("password", SECRET . $num);
                 $user->save(true);
             }
-            /*
-            $data = array(
-                'reply' => "The OTP was already sent to $mobile",
-                'forwards' => array(
-                    $mobile => "The your OTP is $num.",
-                ),
-                'variables' => array(
-                    'state.id' => "verifying",
-                    'contact.vars.recruit' => $mobile,
-                ),
-            );
-            */
             $data = Telehook::getInstance()
                 ->setReply("The OTP was already sent to $mobile.")
                 ->setForward("$mobile|Your OTP is $num")
@@ -339,37 +293,12 @@ class ParseController extends Controller
                 ->getData();
         }
         else {
-            /*
-            $data = array(
-                'reply' => "$mobile is not a valid mobile number.",
-                'variables' => array(
-                    'state.id' => "recruiting",
-                    'contact.vars.recruit' => null,
-                ),
-            );
-            */
             $data = Telehook::getInstance()
                 ->setReply("$mobile is not a valid mobile number!")
                 ->setVariable("state.id|recruiting")
                 ->getData();
         }
         return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
-    }
-
-    public function enterPIN (Request $request) {
-        $mobile = $request->input('mobile');
-        $code = $request->input('code');
-        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
-            $mobile =  DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $num = $request->input('code');
-            try {
-                $user = ParseUser::logIn($mobile, SECRET . $num);
-            } catch (ParseException $ex) {
-                echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-            }
-            return $user->username;
-        }
-        return 'Failed!';
     }
 
     public function verify (Request $request) {
@@ -387,31 +316,18 @@ class ParseController extends Controller
                     ->getData();
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             } catch (ParseException $ex) {
-                //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 $data = Telehook::getInstance()
                     ->setReply("OTP is not valid! Please try again. " . $ex->getCode() . " " . $ex->getMessage())
                     ->setVariable("state.id|verifying")
                     ->addVariable("contact.vars.recruit|$mobile")
                     ->getData();
             }
-
         }
         return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
-        //return false;
     }
 
     public function args(Request $request) {
-        //$str = $request->input('text');
-        //dd($this->parse_args($str));
-        /*
-        $telehook = new Telehook();
-        $telehook->AddReply('this is a reply')
-            ->AddForward('09189362340|Yes yes yo.')
-            ->AddForward('09189362339|"Kring kring"')
-            ->AddVariable('state.id|recruiting');
-        */
-        //$telehook->getData());
-        return Telehook::staticMethod();
-
+        $str = $request->input('text');
+        dd($this->parse_args($str));
     }
 }
