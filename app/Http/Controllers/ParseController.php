@@ -181,13 +181,15 @@ class ParseController extends Controller
                                     }
                                 }
                                 else {
+                                    /*
                                     $data = array(
                                         'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
                                         'variables' => array(
                                             'state.id' => "recruiting",
                                         ),
                                     );
-                                    $data = new Telehook("You are now in recruiting mode. Please enter mobile number of your recruit:");
+                                    */
+                                    $data = new Telehook("You, yes you, are now in recruiting mode. Please enter mobile number of your recruit:");
                                     $data->AddVariable('state.id|recuiting');
                                     return response(view('webhook', $data->getData()), 200, ['Content-Type' => "application/json"]);
                                 }
