@@ -201,7 +201,7 @@ class ParseController extends Controller
                                     $tele->generateData($data2);
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
-                                    return response(view('webhook', $data2), 200, ['Content-Type' => "application/json"]);
+                                    return response(view('webhook', $data1), 200, ['Content-Type' => "application/json"]);
                                 }
                                 break;
                         }
