@@ -208,9 +208,9 @@ class ParseController extends Controller
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
                                     //$data1 = Telehook::staticMethod();
-                                    //return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+                                    return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
 
-                                    return response()->json(['reply' => 'Abigail']);
+                                    //return response()->json(['reply' => 'Abigail']);
                                 }
                                 break;
                         }
