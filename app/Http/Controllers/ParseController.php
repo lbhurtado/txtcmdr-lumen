@@ -23,15 +23,21 @@ define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
 
 class WebhookHelper {
-    public static $ddata = array(
-        'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
-        'variables' => array(
-            'state.id' => "recruiting",
-        ),
-    );
+    public static $ddata = array();
+
+    public static $dreply = 'The quick brown fox...';
+
+    public static function addReply($reply){
+        self::$dreply = $reply;
+    }
 
     public static function getData(){
-        return self::$ddata;
+        return array(
+            'reply' => self::$dreply,
+            'variables' => array(
+                'state.id' => "recruiting",
+            ),
+        );
     }
 }
 
@@ -213,6 +219,7 @@ class ParseController extends Controller
                                         'reply' => "Testing 123",
                                     );
 
+                                    WebhookHelper::addReply('testing 312');
                                     $data = WebhookHelper::getData();
                                     //var_dump($data);
 
