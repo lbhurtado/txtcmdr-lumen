@@ -41,14 +41,32 @@ class Telehook
 
     public function setReply($reply)
     {
-        self::$reply = $reply;
+        static::$reply = $reply;
+        return static::getInstance();
+    }
+
+    public function setForward($pipe_delimited_text)
+    {
+        static::$forwards = array();
+        $forward = explode('|', $pipe_delimited_text);
+        static::$forwards[$forward[0]] = $forward[1];
+
         return static::getInstance();
     }
 
     public function addForward($pipe_delimited_text)
     {
         $forward = explode('|', $pipe_delimited_text);
-        self::$forwards[$forward[0]] = $forward[1];
+        static::$forwards[$forward[0]] = $forward[1];
+
+        return static::getInstance();
+    }
+
+    public function setVariable($pipe_delimited_text)
+    {
+        static::$variables = array();
+        $var = explode('|', $pipe_delimited_text);
+        static::$variables[$var[0]] = $var[1];
 
         return static::getInstance();
     }
@@ -56,7 +74,7 @@ class Telehook
     public function addVariable($pipe_delimited_text)
     {
         $var = explode('|', $pipe_delimited_text);
-        self::$variables[$var[0]] = $var[1];
+        static::$variables[$var[0]] = $var[1];
 
         return static::getInstance();
     }
