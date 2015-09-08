@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
@@ -207,7 +208,11 @@ class ParseController extends Controller
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
                                     //$data1 = Telehook::staticMethod();
-                                    return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+                                    //return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+                                    return Response::json(array(
+                                        'reply' => 'Steve Brule'
+                                    ));
+
                                 }
                                 break;
                         }
