@@ -317,7 +317,7 @@ class ParseController extends Controller
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
                 $data = array(
-                    'reply' => "OTP is valid",
+                    'reply' => "OTP is valid.",
                     'forwards' => array(
                         $mobile => "Your OTP is valid.  Congratulations!",
                     ),
@@ -341,6 +341,14 @@ class ParseController extends Controller
                         'contact.vars.recruit' => $mobile,
                     )
                 ));
+                $data = array(
+                    'reply' => "OTP is not valid! Please try again.",
+                    'variables' => array(
+                        'state.id' => "verifying",
+                        'contact.vars.recruit' => $mobile,
+                    ),
+                );
+                return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             }
 
         }
