@@ -196,9 +196,9 @@ class ParseController extends Controller
                                     );
 
                                     //var_dump($data);
-                                    $tele = new Telehook("Testing 123");
+                                    //$tele = new Telehook("Testing 123");
                                     //$tele->AddVariable('state.id|recruiting');
-                                    $tele->generateData($data2);
+                                    //$tele->generateData($data2);
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
                                     return response(view('webhook', $data1), 200, ['Content-Type' => "application/json"]);
