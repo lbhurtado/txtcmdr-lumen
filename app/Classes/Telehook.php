@@ -24,7 +24,7 @@ class Telehook
     private function __construct()
     {
     }
-    
+
     public static function addForward($pipe_delimited_text)
     {
         $forward = explode('|', $pipe_delimited_text);
@@ -35,6 +35,12 @@ class Telehook
     {
         $variable = explode('|', $pipe_delimited_text);
         self::$variables[$variable[0]] = $variable[1];
+    }
+
+    public function setReply($reply)
+    {
+        self::$reply = $reply;
+        return $this;
     }
 
     public static function getData()
