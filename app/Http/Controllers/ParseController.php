@@ -23,17 +23,17 @@ define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
 
 class WebhookHelper {
-    public static $ddata = array();
+    public static $data = array();
 
-    public static $dreply = 'The quick brown fox...';
+    public static $reply = 'The quick brown fox...';
 
     public static function addReply($reply){
-        self::$dreply = $reply;
+        self::$reply = $reply;
     }
 
     public static function getData(){
         return array(
-            'reply' => self::$dreply,
+            'reply' => self::$reply,
             'variables' => array(
                 'state.id' => "recruiting",
             ),
@@ -202,39 +202,11 @@ class ParseController extends Controller
                                 }
                                 else {
 
-                                    //$tele = new Telehook("Testing 123");
-                                    //unset($tele);
-/*
-                                    $data = array(
-                                        'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
-                                        'variables' => array(
-                                            'state.id' => "recruiting",
-                                        ),
-                                    );
-*/
-                                    //var_dump($data);
-
-
-                                    $data1 = array(
-                                        'reply' => "Testing 123",
-                                    );
-
-                                    WebhookHelper::addReply('testing 312');
+                                    WebhookHelper::addReply('You are now in recruiting mode. Please enter mobile number of your recruit:');
                                     $data = WebhookHelper::getData();
 
-                                    //Telehook::addDReply('testing 537');
-                                    //$data = Telehook::getDData();
-
-                                    //var_dump($data);
-
-                                    //$tele->AddVariable('state.id|recruiting');
-                                    //$tele->generateData($data2);
-                                    //var_dump($data);
-                                    //dd(array_diff($data1,$data2));
-                                    //$data1 = Telehook::staticMethod();
                                     return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
 
-                                    //return response()->json(['reply' => 'Abigail']);
                                 }
                                 break;
                         }
