@@ -182,6 +182,9 @@ class ParseController extends Controller
                                 }
                                 else {
 
+                                    $tele = new Telehook("Testing 123");
+                                    unset($tele);
+
                                     $data = array(
                                         'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
                                         'variables' => array(
@@ -196,8 +199,7 @@ class ParseController extends Controller
                                     );
 
                                     //var_dump($data);
-                                    //$tele = new Telehook("Testing 123");
-                                    //unset($tele);
+
                                     //$tele->AddVariable('state.id|recruiting');
                                     //$tele->generateData($data2);
                                     //var_dump($data);
