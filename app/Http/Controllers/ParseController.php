@@ -219,8 +219,12 @@ class ParseController extends Controller
                                         'reply' => "Testing 123",
                                     );
 
-                                    WebhookHelper::addReply('testing 312');
-                                    $data = WebhookHelper::getData();
+                                    //WebhookHelper::addReply('testing 312');
+                                    //$data = WebhookHelper::getData();
+
+                                    Telehook::addDReply('testing 537');
+                                    $data = Telehook::getDData();
+
                                     //var_dump($data);
 
                                     //$tele->AddVariable('state.id|recruiting');
