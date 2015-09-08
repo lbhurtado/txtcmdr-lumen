@@ -14,6 +14,7 @@
 use Illuminate\Http\Request;
 use Parse\ParseClient;
 use Parse\ParseObject;
+use Illuminate\Support\Facades\View;
 
 class Pop extends Illuminate\Database\Eloquent\Model {
 
@@ -96,4 +97,21 @@ $app->group(['prefix' => 'parse'], function ($app) {
     $app->post( 'login',        'App\Http\Controllers\ParseController@login');
     $app->post( 'sendotp',      'App\Http\Controllers\ParseController@sendotp');
     $app->post( 'enterpin',     'App\Http\Controllers\ParseController@enterpin');
+    $app->post( 'args',         'App\Http\Controllers\ParseController@args');
+    $app->get(  'view', function ()  {
+        $mobile = "09189362341";
+        $otp = "1234";
+        $data = array(
+            'reply' => "The OTP was already sent to $mobile",
+            'forwards' => array(
+                '09189362340' => "The your OTP is $otp.",
+                '09173011987' => "The your OTP is $otp.",
+            ),
+            'variables' => array(
+                'state.id' => "recruiting",
+                'contact.vars.recruit' => $mobile,
+            ),
+        );
+        return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+    });
 });
