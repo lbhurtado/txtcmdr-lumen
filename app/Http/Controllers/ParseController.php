@@ -22,7 +22,18 @@ define('RANDOM_FLOOR', 1000);
 define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
 
+class WebhookHelper {
+    public static $ddata = array(
+        'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
+        'variables' => array(
+            'state.id' => "recruiting",
+        ),
+    );
 
+    public static function getData(){
+        return self::$ddata;
+    }
+}
 
 class ParseController extends Controller
 {
@@ -201,6 +212,7 @@ class ParseController extends Controller
                                         'reply' => "Testing 123",
                                     );
 
+                                    $data = WebhookHelper::getData();
                                     //var_dump($data);
 
                                     //$tele->AddVariable('state.id|recruiting');
