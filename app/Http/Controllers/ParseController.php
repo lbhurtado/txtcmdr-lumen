@@ -220,13 +220,8 @@ class ParseController extends Controller
                                     }
                                 }
                                 else {
-
-                                    //Telehook::addReply('You are now in recruiting mode. Please enter mobile number of your recruit:');
-                                    //Telehook::addVariable('state.id|recruiting');
-
                                     $data = Telehook::getInstance()
                                         ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
-                                        ->addForward('09189362349|Hello World')
                                         ->addVariable('state.id|recruiting')
                                         ->getData();
 
@@ -324,6 +319,7 @@ class ParseController extends Controller
                 $user->set("password", SECRET . $num);
                 $user->save(true);
             }
+            /*
             $data = array(
                 'reply' => "The OTP was already sent to $mobile",
                 'forwards' => array(
@@ -334,6 +330,13 @@ class ParseController extends Controller
                     'contact.vars.recruit' => $mobile,
                 ),
             );
+            */
+            $data = Telehook::getInstance()
+                ->setReply("The OTP was already sent to $mobile.")
+                ->addForward("$mobile|Your OTP is $num")
+                ->addVariable("state.id|verifying")
+                ->addVariable("contact.vars.recruit|$mobile")
+                ->getData();
         }
         else {
             $data = array(
@@ -343,6 +346,10 @@ class ParseController extends Controller
                     'contact.vars.recruit' => null,
                 ),
             );
+            $data = Telehook::getInstance()
+                ->setReply("$mobile is not a valid mobile number!")
+                ->addVariable("state.id|recruiting")
+                ->getData();
         }
         return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
     }
