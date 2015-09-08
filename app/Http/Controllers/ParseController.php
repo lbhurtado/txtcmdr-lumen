@@ -196,8 +196,8 @@ class ParseController extends Controller
                                     );
 
                                     //var_dump($data);
-                                    $tele = new Telehook("Testing 123");
-                                    unset($tele);
+                                    //$tele = new Telehook("Testing 123");
+                                    //unset($tele);
                                     //$tele->AddVariable('state.id|recruiting');
                                     //$tele->generateData($data2);
                                     //var_dump($data);
