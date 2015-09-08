@@ -339,6 +339,7 @@ class ParseController extends Controller
                 ->getData();
         }
         else {
+            /*
             $data = array(
                 'reply' => "$mobile is not a valid mobile number.",
                 'variables' => array(
@@ -346,6 +347,7 @@ class ParseController extends Controller
                     'contact.vars.recruit' => null,
                 ),
             );
+            */
             $data = Telehook::getInstance()
                 ->setReply("$mobile is not a valid mobile number!")
                 ->addVariable("state.id|recruiting")
@@ -377,6 +379,7 @@ class ParseController extends Controller
             $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
+                /*
                 $data = array(
                     'reply' => "OTP is valid.",
                     'forwards' => array(
@@ -387,9 +390,17 @@ class ParseController extends Controller
                         'contact.vars.recruit' => null,
                     ),
                 );
+                */
+                $data = Telehook::getInstance()
+                    ->setReply("OTP is valid.")
+                    ->addForward("$mobile|Your OTP is valid.  Congratulations!")
+                    ->addVariable("state.id|recruiting")
+                    ->addVariable("contact.vars.recruit|nil")
+                    ->getData();
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             } catch (ParseException $error) {
                 //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                /*
                 $data = array(
                     'reply' => "OTP is not valid! Please try again.",
                     'variables' => array(
@@ -397,6 +408,13 @@ class ParseController extends Controller
                         'contact.vars.recruit' => $mobile,
                     ),
                 );
+                */
+                $data = Telehook::getInstance()
+                    ->setReply("OTP is not valid! Please try again.")
+                    ->addForward("$mobile|Your OTP is valid.  Congratulations!")
+                    ->addVariable("state.id|verifying")
+                    ->addVariable("contact.vars.recruit|nil")
+                    ->getData();
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             }
 
