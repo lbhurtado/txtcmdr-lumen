@@ -289,6 +289,7 @@ class ParseController extends Controller
                     'contact.vars.recruit' => $mobile,
                 ),
             );
+            return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
         }
     }
 
