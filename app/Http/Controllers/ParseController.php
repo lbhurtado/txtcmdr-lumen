@@ -167,35 +167,26 @@ class ParseController extends Controller
                                         } catch (ParseException $ex) {
                                             echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                                         }
-                                        header("Content-Type: application/json");
-                                        return json_encode(array(
-                                            'messages' => array(
-                                                array(
-                                                    'content' => "The OTP was already sent to $mobile."
-                                                ),
-                                                array(
-                                                    'content' => "Your OTP is $num",
-                                                    'to_number' => $mobile,
-                                                ),
+                                        $data = array(
+                                            'reply' => "The OTP was already sent to $mobile.",
+                                            'forwards' => array(
+                                                $mobile => "The your OTP is $num.",
                                             ),
                                             'variables' => array(
-                                                'state.id' => 'recruiting',
-                                            )
-                                        ));
+                                                'state.id' => "recruiting",
+                                            ),
+                                        );
+                                        return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
                                     }
                                 }
                                 else {
-                                    header("Content-Type: application/json");
-                                    return json_encode(array(
-                                        'messages' => array(
-                                            array(
-                                                'content' => "You are now in recruiting mode. Please enter mobile number of your recruit:"
-                                            )
-                                        ),
+                                    $data = array(
+                                        'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
                                         'variables' => array(
-                                            'state.id' => 'recruiting',
-                                        )
-                                    ));
+                                            'state.id' => "recruiting",
+                                        ),
+                                    );
+                                    return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
                                 }
                                 break;
                         }
@@ -288,22 +279,16 @@ class ParseController extends Controller
                 $user->set("password", SECRET . $num);
                 $user->save(true);
             }
-            header("Content-Type: application/json");
-            return json_encode(array(
-                'messages' => array(
-                    array(
-                        'content' => "The OTP was already sent to $mobile."
-                    ),
-                    array(
-                        'content' => "Your OTP is $num",
-                        'to_number' => $mobile,
-                    ),
+            $data = array(
+                'reply' => "The OTP was already sent to $mobile",
+                'forwards' => array(
+                    $mobile => "The your OTP is $num.",
                 ),
                 'variables' => array(
-                    'state.id' => 'verifying',
+                    'state.id' => "verifying",
                     'contact.vars.recruit' => $mobile,
-                )
-            ));
+                ),
+            );
         }
     }
 
@@ -315,7 +300,7 @@ class ParseController extends Controller
             $num = $request->input('code');
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
-            } catch (ParseException $error) {
+            } catch (ParseException $ex) {
                 echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
             }
             return $user->username;
