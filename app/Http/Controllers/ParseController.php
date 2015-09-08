@@ -48,15 +48,6 @@ class WebhookHelper {
     }
 
     public static function getData(){
-        /*
-        return array(
-            'reply' => self::$reply,
-            'variables' => array(
-                'state.id' => "recruiting",
-            ),
-        );
-        */
-
         $ar = array();
         if (self::$reply)
             $ar['reply'] = self::$reply;
@@ -230,9 +221,9 @@ class ParseController extends Controller
                                 }
                                 else {
 
-                                    WebhookHelper::addReply('You are now in recruiting mode. Please enter mobile number of your recruit:');
-                                    WebhookHelper::addVariable('state.id|recruiting');
-                                    $data = WebhookHelper::getData();
+                                    Telehook::addReply('You are now in recruiting mode. Please enter mobile number of your recruit:');
+                                    Telehook::addVariable('state.id|recruiting');
+                                    $data = Telehook::getData();
 
                                     return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
 
