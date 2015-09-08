@@ -383,7 +383,7 @@ class ParseController extends Controller
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid.  Congratulations!")
                     ->setVariable("state.id|recruiting")
-                    ->addVariable("contact.vars.recruit|nil")
+                    ->addVariable("contact.vars.recruit|")
                     ->getData();
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             } catch (ParseException $ex) {
