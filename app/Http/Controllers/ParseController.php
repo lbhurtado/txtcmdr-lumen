@@ -391,7 +391,7 @@ class ParseController extends Controller
                 $data = Telehook::getInstance()
                     ->setReply("OTP is not valid! Please try again. " . $ex->getCode() . " " . $ex->getMessage())
                     ->setVariable("state.id|verifying")
-                    ->addVariable("contact.vars.recruit|nil")
+                    ->addVariable("contact.vars.recruit|$mobile")
                     ->getData();
             }
 
