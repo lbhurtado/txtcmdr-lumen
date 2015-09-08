@@ -192,7 +192,7 @@ class ParseController extends Controller
 */
                                     $tele = new Telehook("You are now in recruiting mode. Please enter mobile number of your recruit:");
                                     $tele->AddVariable('state.id|recruiting');
-                                    $data = $tele->getData();
+                                    $data = $tele->generateData();
                                     var_dump($data);
                                     return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
                                 }
