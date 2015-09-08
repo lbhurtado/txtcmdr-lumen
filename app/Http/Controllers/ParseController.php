@@ -379,18 +379,6 @@ class ParseController extends Controller
             $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
-                /*
-                $data = array(
-                    'reply' => "OTP is valid.",
-                    'forwards' => array(
-                        $mobile => "Your OTP is valid.  Congratulations!",
-                    ),
-                    'variables' => array(
-                        'state.id' => "recruiting",
-                        'contact.vars.recruit' => null,
-                    ),
-                );
-                */
                 $data = Telehook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid.  Congratulations!")
@@ -398,19 +386,10 @@ class ParseController extends Controller
                     ->addVariable("contact.vars.recruit|nil")
                     ->getData();
                 return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
-            } catch (ParseException $error) {
+            } catch (ParseException $ex) {
                 //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-                /*
-                $data = array(
-                    'reply' => "OTP is not valid! Please try again.",
-                    'variables' => array(
-                        'state.id' => "verifying",
-                        'contact.vars.recruit' => $mobile,
-                    ),
-                );
-                */
                 $data = Telehook::getInstance()
-                    ->setReply("OTP is not valid! Please try again.")
+                    ->setReply("OTP is not valid! Please try again. " . $ex->getCode() . " " . $ex->getMessage())
                     ->setVariable("state.id|verifying")
                     ->addVariable("contact.vars.recruit|nil")
                     ->getData();
