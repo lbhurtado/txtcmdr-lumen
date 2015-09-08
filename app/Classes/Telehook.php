@@ -45,7 +45,7 @@ class Telehook
         return static::getInstance();
     }
 
-    public function setForward($pipe_delimited_text)
+    public function addForward($pipe_delimited_text)
     {
         $forward = explode('|', $pipe_delimited_text);
         self::$forwards[$forward[0]] = $forward[1];
