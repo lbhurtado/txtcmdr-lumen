@@ -72,8 +72,8 @@ class Telehook
 
     public function setVariable($pipe_delimited_text)
     {
-        $variable = explode('|', $pipe_delimited_text);
-        self::$variables[$variable[0]] = $variable[1];
+        $var = explode('|', $pipe_delimited_text);
+        self::$variables[$var[0]] = $var[1];
 
         return $this;
     }
