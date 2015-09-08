@@ -201,7 +201,8 @@ class ParseController extends Controller
                                     //$tele->generateData($data2);
                                     //var_dump($data);
                                     //dd(array_diff($data1,$data2));
-                                    return response(view('webhook', $data1), 200, ['Content-Type' => "application/json"]);
+                                    $data = Telehook::staticMethod();
+                                    return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
                                 }
                                 break;
                         }
@@ -370,12 +371,15 @@ class ParseController extends Controller
     public function args(Request $request) {
         //$str = $request->input('text');
         //dd($this->parse_args($str));
+        /*
         $telehook = new Telehook();
         $telehook->AddReply('this is a reply')
             ->AddForward('09189362340|Yes yes yo.')
             ->AddForward('09189362339|"Kring kring"')
             ->AddVariable('state.id|recruiting');
-        dd ($telehook->getData());
+        */
+        //$telehook->getData());
+        return Telehook::staticMethod();
 
     }
 }
