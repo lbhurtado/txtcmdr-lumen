@@ -272,7 +272,7 @@ class ParseController extends Controller
                 try {
                     $user->signUp(true);
                 } catch (ParseException $ex) {
-                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
+                    //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 }
             }
             else {
@@ -316,22 +316,17 @@ class ParseController extends Controller
             $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array(
-                            'content' => "OTP is valid."
-                        ),
-                        array(
-                            'content' => "Your OTP is valid.  Congratulations!",
-                            'to_number' => $mobile,
-                        ),
+                $data = array(
+                    'reply' => "OTP is valid",
+                    'forwards' => array(
+                        $mobile => "Your OTP is valid.  Congratulations!",
                     ),
                     'variables' => array(
-                        'state.id' => 'recruiting',
+                        'state.id' => "recruiting",
                         'contact.vars.recruit' => null,
-                    )
-                ));
+                    ),
+                );
+                return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
             } catch (ParseException $error) {
                 //echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 header("Content-Type: application/json");
