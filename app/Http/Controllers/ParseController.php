@@ -289,8 +289,17 @@ class ParseController extends Controller
                     'contact.vars.recruit' => $mobile,
                 ),
             );
-            return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
         }
+        else {
+            $data = array(
+                'reply' => "$mobile is not a valid mobile number.",
+                'variables' => array(
+                    'state.id' => "recruiting",
+                    'contact.vars.recruit' => null,
+                ),
+            );
+        }
+        return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
     }
 
     public function enterPIN (Request $request) {
