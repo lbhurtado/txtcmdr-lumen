@@ -225,9 +225,9 @@ class ParseController extends Controller
                                     //Telehook::addVariable('state.id|recruiting');
 
                                     $data = Telehook::getInstance()
-                                        ->addReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
-                                        //->addForward('09189362349|Hello World')
-                                        ->addVariable('state.id|recruiting')
+                                        ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+                                        //->setForward('09189362349|Hello World')
+                                        ->setVariable('state.id|recruiting')
                                         ->getData();
 
                                     return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
