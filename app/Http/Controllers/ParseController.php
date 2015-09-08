@@ -21,6 +21,8 @@ define('RANDOM_FLOOR', 1000);
 define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
 
+
+
 class ParseController extends Controller
 {
     public function initialize() {
@@ -182,8 +184,8 @@ class ParseController extends Controller
                                 }
                                 else {
 
-                                    $tele = new Telehook("Testing 123");
-                                    unset($tele);
+                                    //$tele = new Telehook("Testing 123");
+                                    //unset($tele);
 
                                     $data = array(
                                         'reply' => "You are now in recruiting mode. Please enter mobile number of your recruit:",
