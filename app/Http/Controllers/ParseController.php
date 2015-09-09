@@ -224,7 +224,7 @@ class ParseController extends Controller
 
     public function recruit(Request $request)
     {
-        $data = Telehook::getInstance();
+        //$data = Telehook::getInstance();
         $mobile = $request->input('content');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
@@ -244,13 +244,15 @@ class ParseController extends Controller
             } else {
                 $user->set('password',SECRET.$num)->save(true);
             }
-            $data->setReply("The OTP was already sent to $mobile.")
+            $data = Telehook::getInstance()
+                ->setReply("The OTP was already sent to $mobile.")
                 ->setForward("$mobile|Your OTP is $num")
                 ->setVariable("state.id|verifying")
                 ->addVariable("contact.vars.recruit|$mobile")
                 ->getData();
         } else {
-            $data->setReply("$mobile is not a valid mobile number!")
+            $data = Telehook::getInstance()
+                ->setReply("$mobile is not a valid mobile number!")
                 ->setVariable("state.id|recruiting")
                 ->getData();
         }
