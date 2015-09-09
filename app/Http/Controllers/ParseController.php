@@ -234,8 +234,7 @@ class ParseController extends Controller
                 $user->setUsername($mobile)
                     ->setPassword(SECRET.$num)
                     ->setACL(new ParseACL())
-                    ->setPhone($mobile);
-                    //->set('phone', $mobile);
+                    ->set('phone', $mobile);
                 try {
                     $user->signUp(true);
                 } catch (ParseException $ex) {
