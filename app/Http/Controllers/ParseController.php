@@ -224,11 +224,12 @@ class ParseController extends Controller
 
     public function recruit(Request $request)
     {
+        $data = Telehook::getInstance()
         $mobile = $request->input('content');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
             $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
+            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
             if (!$user) {
                 $user = new ParseUser();
                 $user->setUsername($mobile);
@@ -243,15 +244,13 @@ class ParseController extends Controller
             } else {
                 $user->set('password',SECRET.$num)->save(true);
             }
-            $data = Telehook::getInstance()
-                ->setReply("The OTP was already sent to $mobile.")
+            $data->setReply("The OTP was already sent to $mobile.")
                 ->setForward("$mobile|Your OTP is $num")
                 ->setVariable("state.id|verifying")
                 ->addVariable("contact.vars.recruit|$mobile")
                 ->getData();
         } else {
-            $data = Telehook::getInstance()
-                ->setReply("$mobile is not a valid mobile number!")
+            $data->setReply("$mobile is not a valid mobile number!")
                 ->setVariable("state.id|recruiting")
                 ->getData();
         }
