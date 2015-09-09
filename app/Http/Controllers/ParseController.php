@@ -231,10 +231,10 @@ class ParseController extends Controller
             $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
             if (!$user) {
                 $user = new ParseUser();
-                $user->setUsername($mobile)
-                    ->setPassword(SECRET.$num)
-                    ->setACL(new ParseACL())
-                    ->set('phone', $mobile);
+                $user->setUsername($mobile);
+                $user->setPassword(SECRET.$num);
+                $user->setACL(new ParseACL());
+                $user->set('phone', $mobile);
                 try {
                     $user->signUp(true);
                 } catch (ParseException $ex) {
