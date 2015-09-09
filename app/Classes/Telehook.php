@@ -78,4 +78,8 @@ class Telehook
 
         return static::getInstance();
     }
+
+    public function getResponse(){
+        return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
+    }
 }

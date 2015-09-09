@@ -147,13 +147,14 @@ class ParseController extends Controller
         if ($request->input('secret') === '87186188739312') {
             if ($request->input('event') == 'incoming_message') {
                 $content = $request->input('content');
-                $args = $this->parse_args($content);
+                //$args = $this->parse_args($content);
                 $content_array = explode(' ', trim($content));
                 $word1 = array_shift($content_array);
                 $remainder1 = implode(' ', $content_array);
                 $mobile = $request->input('from_number');
                 $state = $request->input('state.id');
-
+                if (!$state)
+                    $state = $request->input('state_id');
                 switch ($state) {
                     case NO_STATE:
                         switch (strtoupper($word1)) {
@@ -198,9 +199,11 @@ class ParseController extends Controller
                         return $this->verify($request);
                         break;
                 }
+                return $state;
             }
+            return 'nin';
         }
-        return 'nan';
+        return 'Nan';
     }
 
     public function login(Request $request)
@@ -228,12 +231,12 @@ class ParseController extends Controller
         $mobile = $request->input('content');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-            $num = mt_rand(RANDOM_FLOOR,RANDOM_CEILING);
+            $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
             $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
             if (!$user) {
                 $user = new ParseUser();
                 $user->setUsername($mobile);
-                $user->setPassword(SECRET.$num);
+                $user->setPassword(SECRET . $num);
                 $user->setACL(new ParseACL());
                 $user->set('phone', $mobile);
                 try {
@@ -242,7 +245,8 @@ class ParseController extends Controller
                     echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 }
             } else {
-                $user->set('password',SECRET.$num)->save(true);
+                $user->set('password', SECRET . $num);
+                $user->save(true);
             }
             $data = Telehook::getInstance()
                 ->setReply("The OTP was already sent to $mobile.")
@@ -262,27 +266,26 @@ class ParseController extends Controller
     public function verify(Request $request)
     {
         $mobile = $request->input('contact.vars.recruit');
+        if (!$mobile)
+            $mobile = $request->input('contact_vars_recruit');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
-                $data = Telehook::getInstance()
+                Telehook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid. Congratulations!")
                     ->setVariable("state.id|recruiting")
-                    ->addVariable("contact.vars.recruit|")
-                    ->getData();
-                //return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+                    ->addVariable("contact.vars.recruit|");
             } catch (ParseException $ex) {
-                $data = Telehook::getInstance()
-                    ->setReply("OTP is not valid! Please try again. " . $ex->getCode() . " " . $ex->getMessage())
+                Telehook::getInstance()
+                    ->setReply("OTP is not valid! Please try again.")
                     ->setVariable("state.id|verifying")
-                    ->addVariable("contact.vars.recruit|$mobile")
-                    ->getData();
+                    ->addVariable("contact.vars.recruit|$mobile");
             }
         }
-        return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+        return Telehook::getInstance()->getResponse();
     }
 
     public function args(Request $request)
