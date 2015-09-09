@@ -224,7 +224,7 @@ class ParseController extends Controller
 
     public function recruit(Request $request)
     {
-        $data = Telehook::getInstance()
+        $data = Telehook::getInstance();
         $mobile = $request->input('content');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
