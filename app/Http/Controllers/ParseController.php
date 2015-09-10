@@ -154,6 +154,10 @@ class ParseController extends Controller
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
             $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
+            return Telehook::getInstance()
+                ->setReply("before new ParseUser()")
+                ->getResponse();
+
             if (!$user) {
                 $user = new ParseUser();
                 $user->setUsername($mobile);
