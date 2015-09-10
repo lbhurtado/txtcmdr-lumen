@@ -102,7 +102,7 @@ class Telehook
     private static function getVariable($variable) {
         $result = static::$request->input($variable);
         if (!$result)
-            $result = static::$request->input(str_replace('.', '_', $variable));
+            $result = static::$request->input(str_replace('_', '.', $variable));
 
         return $result;
     }
