@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Classes;
+use Illuminate\Http\Request;
 
 /**
  * Class Telehook
@@ -12,6 +13,12 @@ class Telehook
     public static $forwards = array();
     public static $variables = array();
     private static $_instance = null;
+    private static $request = null;
+    public static $content = null;
+    private static $content_array = array();
+    public static $word1 = null;
+    public static $remainder1 = null;
+    public static $state = null;
 
     private function __construct()
     {
@@ -33,7 +40,7 @@ class Telehook
     public static function getInstance()
     {
         if (self::$_instance === null) {
-            self::$_instance = new self;
+            self::$_instance = new self();
         }
 
         return static::$_instance;
@@ -81,5 +88,38 @@ class Telehook
 
     public function getResponse(){
         return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
+    }
+
+    //deprecate
+    public static function getProperty(Request $request, $vproperty){
+        $property = $request->input($vproperty);
+        if (!$property)
+            $property = $request->input(str_replace('.', '_', $vproperty));
+
+        return $property;
+    }
+
+    private static function getVariable($variable) {
+        $result = static::$request->input($variable);
+        if (!$result)
+            $result = static::$request->input(str_replace('.', '_', $variable));
+
+        return $result;
+    }
+
+    public static function isAuthorized(Request $request){
+        if ($request->input('secret') === env('TELERIVET_WEBHOOK_SECRET')) {
+            if ($request->input('event') == 'incoming_message') {
+                static::$request = $request;
+                static::$content = trim($request->input('content'));
+                static::$content_array = explode(' ', static::$content);
+                static::$word1 = array_shift(static::$content_array);
+                static::$remainder1 = implode(' ', static::$content_array);
+                static::$state = static::getVariable('state_id');
+
+                return true;
+            }
+        }
+        return false;
     }
 }

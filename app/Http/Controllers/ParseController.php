@@ -15,13 +15,14 @@ use Parse\ParseACL;
 use Parse\ParseException;
 use App\Classes\Telehook;
 
-define('SECRET', '87186188739312');
+define('SECRET', env('PARSE_OTP_PREFIX'));
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
 define('VALID_MOBILE_PATTERN', "/^(" . "?P<country>0" . "|" . "63" . ")(?P<mobile>\d{10})$/");
 define('RANDOM_FLOOR', 1000);
 define('RANDOM_CEILING', 9999);
 define('NO_STATE', '');
-define('USE_MASTERKEY', true);
+define('PARSE_USE_MASTERKEY', true);
+define('PARSE_USERNAME', 'username');
 
 class ParseController extends Controller
 {
@@ -86,7 +87,7 @@ class ParseController extends Controller
     public function index()
     {
         $query = ParseUser::query();
-        $results = $query->find(USE_MASTERKEY);
+        $results = $query->find(PARSE_USE_MASTERKEY);
         echo "Successfully retrieved " . count($results) . " users.\n";
         for ($i = 0; $i < count($results); $i++) {
             $object = $results[$i];
@@ -94,116 +95,36 @@ class ParseController extends Controller
         }
     }
 
-    function parse_args($args)
-    {
-        $out = array();
-        $last_arg = null;
-        if (is_string($args)) {
-            $args = str_replace(array('=', "\'", '\"'), array('= ', '&#39;', '&#34;'), $args);
-            $args = str_getcsv($args, ' ', '"');
-            $tmp = array();
-            foreach ($args as $arg) {
-                if (!empty($arg) && $arg != "&#39;" && $arg != "=" && $arg != " ") {
-                    $tmp[] = str_replace(array('= ', '&#39;', '&#34;'), array('=', "'", '"'), trim($arg));
-                }
-            }
-            $args = $tmp;
-        }
-        for ($i = 0, $il = sizeof($args); $i < $il; $i++) {
-            if ((bool)preg_match("/^--(.+)/", $args[$i], $match)) {
-                $parts = explode("=", $match[1]);
-                $key = preg_replace("/[^a-zA-Z0-9-]+/", "", $parts[0]);
-                if (isset($args[$i + 1]) && substr($args[$i], 0, 2) == '--') {
-                    $out[$key] = $args[$i + 1];
-                    $i++;
-                } else if (isset($parts[1])) {
-                    $out[$key] = $parts[1];
-                } else {
-                    $out[$key] = true;
-                }
-                $last_arg = $key;
-            } else if ((bool)preg_match("/^-([a-zA-Z0-9]+)/", $args[$i], $match)) {
-                $len = strlen($match[1]);
-                for ($j = 0, $jl = $len; $j < $jl; $j++) {
-                    $key = $match[1]{$j};
-                    $val = ($args[$i + 1]) ? $args[$i + 1] : true;
-                    $out[$key] = ($match[0]{$len} == $match[1]{$j}) ? $val : true;
-                }
-                $last_arg = $key;
-            } else if ((bool)preg_match("/^([a-zA-Z0-9-]+)$/", $args[$i], $match)) {
-                $key = $match[0];
-                $out[$key] = true;
-                $last_arg = $key;
-            } else if ($last_arg !== null) {
-                $out[$last_arg] = $args[$i];
-            }
-        }
-        return $out;
-        $str = 'yankee -D "oo\"d l e\'s" -went "2 town 2 buy him-self" -a pony --calledit=" \"macaroonis\' "';
-    }
 
     public function webhook(Request $request)
     {
-        if ($request->input('secret') === '87186188739312') {
-            if ($request->input('event') == 'incoming_message') {
-                $content = $request->input('content');
-                //$args = $this->parse_args($content);
-                $content_array = explode(' ', trim($content));
-                $word1 = array_shift($content_array);
-                $remainder1 = implode(' ', $content_array);
-                $mobile = $request->input('from_number');
-                $state = $request->input('state.id');
-                if (!$state)
-                    $state = $request->input('state_id');
-                switch ($state) {
-                    case NO_STATE:
-                        switch (strtoupper($word1)) {
-                            case 'RECRUIT':
-                                $mobile = $remainder1;
-                                if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
-                                    $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-                                    $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
-                                    if (!$user) {
-                                        $user = new ParseUser();
-                                        $user->setUsername($mobile);
-                                        $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
-                                        $user->setPassword(SECRET . $num);
-                                        $user->setACL(new ParseACL());
-                                        $user->set("phone", $mobile);
-                                        try {
-                                            $user->signUp(true);
-                                        } catch (ParseException $ex) {
-                                            echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
-                                        }
-                                        $data = Telehook::getInstance()
-                                            ->setReply("You are now in recruiting mode. The OTP was already sent to $mobile.")
-                                            ->setForward("$mobile|Your OTP is $num")
-                                            ->setVariable("state.id|verifying")
-                                            ->addVariable("contact.vars.recruit|$mobile")
-                                            ->getData();
-                                    }
-                                } else {
-                                    $data = Telehook::getInstance()
-                                        ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
-                                        ->setVariable('state.id|recruiting')
-                                        ->getData();
-                                }
-                                return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
-                                break;
-                        }
-                        break;
-                    case 'recruiting':
-                        return $this->recruit($request);
-                        break;
-                    case 'verifying':
-                        return $this->verify($request);
-                        break;
-                }
-                return $state;
+        if (Telehook::isAuthorized($request)) {
+            switch (Telehook::$state) {
+                case NO_STATE:
+                    switch (strtoupper(Telehook::$word1)) {
+                        case 'RECRUIT':
+                            if (preg_match(VALID_MOBILE_PATTERN, Telehook::$remainder1, $matches)) {
+                                $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+
+                                return $this->recruit($request, $mobile);
+                            } else {
+                                Telehook::getInstance()
+                                    ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+                                    ->setVariable('state.id|recruiting');
+                            }
+                            break;
+                    }
+                    break;
+                case 'recruiting':
+                    return $this->recruit($request);
+                    break;
+                case 'verifying':
+                    return $this->verify($request);
+                    break;
             }
-            return 'nin';
         }
-        return 'Nan';
+
+        return Telehook::getInstance()->getResponse();
     }
 
     public function login(Request $request)
@@ -225,54 +146,49 @@ class ParseController extends Controller
 
     }
 
-    public function recruit(Request $request)
+    public function recruit(Request $request, $mobile = null)
     {
-        //$data = Telehook::getInstance();
-        $mobile = $request->input('content');
+        if (!$mobile)
+            $mobile = Telehook::$content;
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
-            $user = ParseUser::query()->equalTo("username", $mobile)->first(true);
+            $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
             if (!$user) {
                 $user = new ParseUser();
                 $user->setUsername($mobile);
                 $user->setPassword(SECRET . $num);
                 $user->setACL(new ParseACL());
-                $user->set('phone', $mobile);
                 try {
-                    $user->signUp(true);
+                    $user->signUp(PARSE_USE_MASTERKEY);
                 } catch (ParseException $ex) {
-                    echo "Error: " . $ex->getCode() . " " . $ex->getMessage();
                 }
             } else {
                 $user->set('password', SECRET . $num);
-                $user->save(true);
+                $user->save(PARSE_USE_MASTERKEY);
             }
-            $data = Telehook::getInstance()
+            Telehook::getInstance()
                 ->setReply("The OTP was already sent to $mobile.")
                 ->setForward("$mobile|Your OTP is $num")
                 ->setVariable("state.id|verifying")
-                ->addVariable("contact.vars.recruit|$mobile")
-                ->getData();
+                ->addVariable("contact.vars.recruit|$mobile");
         } else {
-            $data = Telehook::getInstance()
-                ->setReply("$mobile is not a valid mobile number!")
-                ->setVariable("state.id|recruiting")
-                ->getData();
+            Telehook::getInstance()
+                ->setReply(Telehook::$content . " is not a valid mobile number!")
+                ->setVariable("state.id|recruiting");
         }
-        return response(view('webhook', $data), 200, ['Content-Type' => "application/json"]);
+        return Telehook::getInstance()->getResponse();
     }
 
     public function verify(Request $request)
     {
-        $mobile = $request->input('contact.vars.recruit');
-        if (!$mobile)
-            $mobile = $request->input('contact_vars_recruit');
+        $mobile = Telehook::getProperty($request, 'contact.vars.recruit');
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $num = trim($request->input('content'));
             try {
                 $user = ParseUser::logIn($mobile, SECRET . $num);
+                $user->set('phone', $mobile);
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid. Congratulations!")
@@ -286,11 +202,5 @@ class ParseController extends Controller
             }
         }
         return Telehook::getInstance()->getResponse();
-    }
-
-    public function args(Request $request)
-    {
-        $str = $request->input('text');
-        dd($this->parse_args($str));
     }
 }
