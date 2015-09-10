@@ -194,12 +194,12 @@ class ParseController extends Controller
         if ($mobile) {
             $allegedOTP = Telehook::$content;
             try {
-                //$user = ParseUser::logIn($mobile, SECRET . $allegedOTP);
+                //$user = ParseUser::logIn($mobile, SECRET . $allegedOTP);  //use PARSE_USE_MASTERKEY
                 $sessionToken = $this->getSessionToken($mobile, $allegedOTP);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
-                $user->setEmail("$allegedOTP@hurtado.ph");
-                $user->save(PARSE_USE_MASTERKEY);
+                $user->setEmail("yo@hurtado.ph");
+                $user->save();
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid. Congratulations!")
