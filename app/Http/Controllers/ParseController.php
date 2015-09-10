@@ -99,16 +99,15 @@ class ParseController extends Controller
     public function webhook(Request $request)
     {
         if (Telehook::isAuthorized($request)) {
+            return Telehook::getInstance()
+                ->setReply(Telehook::$state)
+                ->getResponse();
             switch (Telehook::$state) {
                 case NO_STATE:
                     switch (strtoupper(Telehook::$word1)) {
                         case 'RECRUIT':
                             if (preg_match(VALID_MOBILE_PATTERN, Telehook::$remainder1, $matches)) {
                                 $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-
-                                return Telehook::getInstance()
-                                    ->setReply("switch RECRUIT")
-                                    ->getResponse();
 
                                 return $this->recruit($request, $mobile);
                             } else {
