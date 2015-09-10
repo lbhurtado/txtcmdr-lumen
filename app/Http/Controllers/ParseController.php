@@ -215,7 +215,6 @@ class ParseController extends Controller
                     ->setVariable("state.id|recruiting")
                     ->addVariable("contact.vars.recruit|");
             } catch (ParseException $ex) {
-                dd($ex->getMessage());
                 Telehook::getInstance()
                     ->setReply("OTP is not valid! Please try again.")
                     ->setVariable("state.id|verifying")
