@@ -129,13 +129,6 @@ class ParseController extends Controller
     {
         $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
         if ($mobile) {
-            $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
-            /*
-            $randomCode =
-                $user
-                    ? $this->updateParseUserWithRandomCode($user)
-                    : $this->signupParseUserWithRandomCode($mobile);
-            */
             $randomCode =
                 ($user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY))
                     ? $this->updateParseUserWithRandomCode($user)
@@ -199,15 +192,19 @@ class ParseController extends Controller
     public
     function verify(Request $request)
     {
-        $somenumber = Telehook::getProperty($request, 'contact.vars.recruit');
+        $somenumber = Telehook::getVariable('contact.vars.recruit');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
+        //dd ($somenumber);
         if ($mobile) {
+
             $allegedOTP = Telehook::$content;
+
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $allegedOTP);  //use PARSE_USE_MASTERKEY
                 $sessionToken = $this->getSessionToken($mobile, $allegedOTP);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
+                $user->setPassword(SECRET . $this->getRandomCode());
                 $user->save();
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
