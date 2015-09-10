@@ -150,13 +150,14 @@ class ParseController extends Controller
     {
         if (!$mobile)
             $mobile = Telehook::$content;
+        return Telehook::getInstance()
+            ->setReply("before new pregmatch")
+            ->getResponse();
+
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
             $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
             $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
-            return Telehook::getInstance()
-                ->setReply("before new ParseUser()")
-                ->getResponse();
 
             if (!$user) {
                 $user = new ParseUser();
