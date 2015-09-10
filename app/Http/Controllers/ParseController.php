@@ -98,10 +98,11 @@ class ParseController extends Controller
 
     public function webhook(Request $request)
     {
+        return Telehook::getInstance()
+            ->setReply($request->input($variable))
+            ->getResponse();
         if (Telehook::isAuthorized($request)) {
-            return Telehook::getInstance()
-                ->setReply($request->input($variable))
-                ->getResponse();
+            
             switch (Telehook::$state) {
                 case NO_STATE:
                     switch (strtoupper(Telehook::$word1)) {
