@@ -101,9 +101,6 @@ class ParseController extends Controller
 
 
         if (Telehook::isAuthorized($request)) {
-            return Telehook::getInstance()
-                ->setReply(Telehook::$state)
-                ->getResponse();
             switch (Telehook::$state) {
                 case NO_STATE:
                     switch (strtoupper(Telehook::$word1)) {
