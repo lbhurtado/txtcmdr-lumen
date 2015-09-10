@@ -105,7 +105,9 @@ class Telehook
         $result = static::$request->input($variable);
         if (!$result)
             $result = static::$request->input(str_replace('.', '_', $variable));
-
+        if (!$result)
+            $result = static::$request->input(str_replace('_', '.', $variable));
+        
         return $result;
     }
 
