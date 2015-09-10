@@ -99,6 +99,11 @@ class ParseController extends Controller
     public function webhook(Request $request)
     {
         if (Telehook::isAuthorized($request)) {
+
+            return Telehook::getInstance()
+                ->setReply("switch")
+                ->getResponse();
+
             switch (Telehook::$state) {
                 case NO_STATE:
                     switch (strtoupper(Telehook::$word1)) {
@@ -150,9 +155,6 @@ class ParseController extends Controller
     {
         if (!$mobile)
             $mobile = Telehook::$content;
-        return Telehook::getInstance()
-            ->setReply("before new pregmatch")
-            ->getResponse();
 
         if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
             $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
