@@ -14,6 +14,7 @@ use Parse\ParseCloud;
 use Parse\ParseACL;
 use Parse\ParseException;
 use App\Classes\Telehook;
+use App\Classes\MobileAddress;
 
 define('SECRET', env('PARSE_OTP_PREFIX'));
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
@@ -98,8 +99,6 @@ class ParseController extends Controller
 
     public function webhook(Request $request)
     {
-
-
         if (Telehook::isAuthorized($request)) {
             switch (Telehook::$state) {
                 case NO_STATE:
@@ -148,13 +147,12 @@ class ParseController extends Controller
 
     }
 
-    public function recruit(Request $request, $mobile = null)
+    public function recruit(Request $request, $somenumber = null)
     {
-        if (!$mobile)
-            $mobile = Telehook::$content;
-
-        if (preg_match(VALID_MOBILE_PATTERN, $mobile, $matches)) {
-            $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
+        if (!$somenumber)
+            $somenumber = Telehook::$content;
+        $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
+        if ($mobile){
             $num = mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
             $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
 
