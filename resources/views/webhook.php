@@ -11,7 +11,7 @@ $forwards = array(
 );
 */
 
-if ($reply) $messages_part[] = array('content' => $reply);
+if (isset($reply)) $messages_part[] = array('content' => $reply);
 
 if (isset($forwards))
     foreach($forwards as $key=>$value) {
