@@ -96,23 +96,19 @@ class ParseController extends Controller
         }
     }
 
-
-    public function webhook(Request $request)
+    public
+    function webhook(Request $request)
     {
         if (Telehook::isAuthorized($request)) {
             switch (Telehook::$state) {
                 case NO_STATE:
                     switch (strtoupper(Telehook::$word1)) {
                         case 'RECRUIT':
-                            if (preg_match(VALID_MOBILE_PATTERN, Telehook::$remainder1, $matches)) {
-                                $mobile = DEFAULT_INTERNATIONAL_PREFIX . $matches['mobile'];
-
-                                return $this->recruit($request, $mobile);
-                            } else {
-                                Telehook::getInstance()
-                                    ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
-                                    ->setVariable('state.id|recruiting');
-                            }
+                            ($mobile = MobileAddress::getInstance(Telehook::$remainder1)->getServiceNumber())
+                                ? $this->recruit($request, $mobile)
+                                : Telehook::getInstance()
+                                ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+                                ->setVariable('state.id|recruiting');
                             break;
                     }
                     break;
@@ -128,13 +124,20 @@ class ParseController extends Controller
         return Telehook::getInstance()->getResponse();
     }
 
-    public function recruit(Request $request, $somenumber = null)
+    public
+    function recruit(Request $request, $somenumber = null)
     {
         $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
         if ($mobile) {
             $user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY);
+            /*
             $randomCode =
                 $user
+                    ? $this->updateParseUserWithRandomCode($user)
+                    : $this->signupParseUserWithRandomCode($mobile);
+            */
+            $randomCode =
+                ($user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY))
                     ? $this->updateParseUserWithRandomCode($user)
                     : $this->signupParseUserWithRandomCode($mobile);
             Telehook::getInstance()
@@ -151,7 +154,8 @@ class ParseController extends Controller
         return Telehook::getInstance()->getResponse();
     }
 
-    private function updateParseUserWithRandomCode(ParseUser $user)
+    private
+    function updateParseUserWithRandomCode(ParseUser $user)
     {
         $randomCode = $this->getRandomCode();
         try {
@@ -165,12 +169,17 @@ class ParseController extends Controller
         return $randomCode;
     }
 
-    private function getRandomCode()
+    private
+    function getRandomCode()
     {
+        list($usec, $sec) = explode(' ', microtime());
+        $seed = (float)$sec + ((float)$usec * 100000);
+        mt_srand($seed);
         return mt_rand(RANDOM_FLOOR, RANDOM_CEILING);
     }
 
-    private function signupParseUserWithRandomCode($mobile)
+    private
+    function signupParseUserWithRandomCode($mobile)
     {
         $randomCode = $this->getRandomCode();
         $user = new ParseUser();
@@ -187,7 +196,8 @@ class ParseController extends Controller
         return $randomCode;
     }
 
-    public function verify(Request $request)
+    public
+    function verify(Request $request)
     {
         $somenumber = Telehook::getProperty($request, 'contact.vars.recruit');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
@@ -198,7 +208,6 @@ class ParseController extends Controller
                 $sessionToken = $this->getSessionToken($mobile, $allegedOTP);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
-                $user->setEmail("yo@hurtado.ph");
                 $user->save();
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
@@ -224,7 +233,8 @@ class ParseController extends Controller
      * @param $allegedOTP
      * @return string
      */
-    private function getSessionToken($somenumber, $allegedOTP)
+    private
+    function getSessionToken($somenumber, $allegedOTP)
     {
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
 
