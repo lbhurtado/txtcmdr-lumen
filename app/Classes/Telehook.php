@@ -3,12 +3,14 @@
 namespace App\Classes;
 use Illuminate\Http\Request;
 
+
 /**
  * Class Telehook
  * @package App\Classes
  */
 class Telehook
 {
+    public static $test = 'Test';
     public static $reply;
     public static $forwards = array();
     public static $variables = array();
@@ -19,31 +21,13 @@ class Telehook
     public static $word1 = null;
     public static $remainder1 = null;
     public static $state = null;
+    public static $inputs = array();
+
+    public static $keyword;
+    public static $arguments;
 
     private function __construct()
     {
-    }
-
-    public static function getData()
-    {
-        $ar = array();
-        if (self::$reply)
-            $ar['reply'] = self::$reply;
-        if (self::$forwards)
-            $ar['forwards'] = self::$forwards;
-        if (self::$variables)
-            $ar['variables'] = self::$variables;
-
-        return $ar;
-    }
-
-    public static function getInstance()
-    {
-        if (self::$_instance === null) {
-            self::$_instance = new self();
-        }
-
-        return static::$_instance;
     }
 
     public function setReply($reply)
@@ -86,29 +70,23 @@ class Telehook
         return static::getInstance();
     }
 
-    public function getResponse(){
-        return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
-    }
-
-    //deprecate
-    /*
-    public static function getProperty(Request $request, $vproperty){
-        $property = $request->input($vproperty);
-        if (!$property)
-            $property = $request->input(str_replace('.', '_', $vproperty));
-
-        return $property;
-    }
-    */
-
     public static function getVariable($variable) {
         $result = static::$request->input($variable);
         if (!$result)
             $result = static::$request->input(str_replace('.', '_', $variable));
         if (!$result)
             $result = static::$request->input(str_replace('_', '.', $variable));
-        
+
         return $result;
+    }
+
+    public static function getInstance()
+    {
+        if (static::$_instance === null) {
+            static::$_instance = new self();
+        }
+
+        return static::$_instance;
     }
 
     public static function isAuthorized(Request $request){
@@ -120,10 +98,33 @@ class Telehook
                 static::$word1 = array_shift(static::$content_array);
                 static::$remainder1 = implode(' ', static::$content_array);
                 static::$state = static::getVariable('state_id');
+                static::$inputs = $request->all();
+
+                static::$arguments = parse_args(static::$content);
+                $value = reset(static::$arguments);
+                static::$keyword = key(static::$arguments);
+                unset(static::$arguments[static::$keyword]);
 
                 return true;
             }
         }
         return false;
+    }
+
+    public static function getData()
+    {
+        $ar = array();
+        if (self::$reply)
+            $ar['reply'] = self::$reply;
+        if (self::$forwards)
+            $ar['forwards'] = self::$forwards;
+        if (self::$variables)
+            $ar['variables'] = self::$variables;
+
+        return $ar;
+    }
+
+    public function getResponse(){
+        return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
     }
 }

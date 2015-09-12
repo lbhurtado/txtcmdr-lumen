@@ -96,9 +96,22 @@ class ParseController extends Controller
         }
     }
 
+    public function test()
+    {
+        //return redirect()->route('parse::home');
+        //return redirect()->route('parse/');
+        //return redirect('cluster/3');
+        //return redirect()->route('recruit::');
+        return redirect()->route('recruit', ['mobile' => 639189362340]);
+    }
+
     public
     function webhook(Request $request)
     {
+        //return redirect()->route('cluster',['cluster'=>3]);
+
+        //return redirect('cluster/3');
+
         if (Telehook::isAuthorized($request)) {
             switch (Telehook::$state) {
                 case NO_STATE:
@@ -127,6 +140,10 @@ class ParseController extends Controller
     public
     function recruit(Request $request, $somenumber = null)
     {
+        Telehook::isAuthorized($request);
+
+        //return "some number " . $somenumber;
+
         $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
         if ($mobile) {
             $randomCode =
@@ -139,11 +156,27 @@ class ParseController extends Controller
                 ->setVariable("state.id|verifying")
                 ->addVariable("contact.vars.recruit|$mobile");
         } else {
+            $msg = is_int($somenumber)
+                ? "$somenumber is not a valid mobile number. "
+                : "You are now in recruiting mode. Please enter mobile number of your recruit:";
             Telehook::getInstance()
-                ->setReply(Telehook::$content . " is not a valid mobile number!")
+                ->setReply($msg)
                 ->setVariable("state.id|recruiting");
         }
 
+        return Telehook::getInstance()->getResponse();
+    }
+
+    public
+    function autoRecruit(Request $request, $mobile)
+    {
+        return $mobile;
+
+        if (Telehook::isAuthorized($request)) {
+            Telehook::getInstance()
+                ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+                ->setVariable('state.id|recruiting');
+        }
         return Telehook::getInstance()->getResponse();
     }
 
@@ -189,16 +222,13 @@ class ParseController extends Controller
         return $randomCode;
     }
 
-    public
+    private
     function verify(Request $request)
     {
         $somenumber = Telehook::getVariable('contact.vars.recruit');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
-        //dd ($somenumber);
         if ($mobile) {
-
             $allegedOTP = Telehook::$content;
-
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $allegedOTP);  //use PARSE_USE_MASTERKEY
                 $sessionToken = $this->getSessionToken($mobile, $allegedOTP);
@@ -224,11 +254,6 @@ class ParseController extends Controller
         return false;
     }
 
-    /**
-     * @param $somenumber
-     * @param $allegedOTP
-     * @return string
-     */
     private
     function getSessionToken($somenumber, $allegedOTP)
     {

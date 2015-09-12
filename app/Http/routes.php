@@ -16,7 +16,8 @@ use Parse\ParseClient;
 use Parse\ParseObject;
 use Illuminate\Support\Facades\View;
 
-class Pop extends Illuminate\Database\Eloquent\Model {
+class Pop extends Illuminate\Database\Eloquent\Model
+{
 
 }
 
@@ -41,36 +42,36 @@ $app->get('pop/{id}', function ($id) {
     return Pop::findOrFail($id);
 });
 
-$app->get('cluster/{cluster}', function ($cluster) {
+$app->get('cluster/{cluster}', ['as' => 'cluster', function ($cluster) {
     $query = Pop::where('cluster', '=', $cluster);
     return $query->get();
-});
+}]);
 
 $app->get('precinct/{precinct}', function ($precinct) {
-    $query = Pop::where('precincts', 'regexp', DB::raw('"[[:<:]](0*'.$precinct.')[[:>:]]"'));
+    $query = Pop::where('precincts', 'regexp', DB::raw('"[[:<:]](0*' . $precinct . ')[[:>:]]"'));
     return $query->get(array('cluster', 'precincts'));
 });
 
 $app->post('webhook', function (Request $request) {
 //    $app->post('webhook', function () {
 
-        if ($request->input('secret') === '87186188739312') {
-            if ($request->input('event') == 'incoming_message') {
-                header("Content-Type: application/json");
-                return json_encode(array(
-                    'messages' => array(
-                        array('content' => $request->input('contact.name') . ", thanks for your message!")
-                    )
-                ));
-            }
+    if ($request->input('secret') === '87186188739312') {
+        if ($request->input('event') == 'incoming_message') {
+            header("Content-Type: application/json");
+            return json_encode(array(
+                'messages' => array(
+                    array('content' => $request->input('contact.name') . ", thanks for your message!")
+                )
+            ));
         }
+    }
 
-        //return 'The quick brown fox jumps over the lazy dog.';
+    //return 'The quick brown fox jumps over the lazy dog.';
 });
 
 ParseClient::initialize('U6CaTTyJ2AGXWLdF3bfl89eWYR2BbMWrEE73Ynsd', 'sz7rz1fuCIo4wRjNlM2lVrfuInsHbCRjr270tK8E', 'vfUXDTVhAxvjteuuNq2in1fYrG7KKtdSMvchj1Qg');
 
-$app->get('parse/object', function(){
+$app->get('parse/object', function () {
 
     $object = ParseObject::create("TestObject");
     $objectId = $object->getObjectId();
@@ -89,9 +90,23 @@ $app->get('parse/object', function(){
     return 'object saved.';
 });
 
+$app->group(['prefix'=>'telerivet'], function ($app) {
+
+    $app->post('recruit/{somenumber: (?:0|63)(?:[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])}', [
+        'as' => 'recruit',
+        'uses' => 'App\Http\Controllers\ParseController@recruit'
+    ]);
+
+    $app->post('autorecruit', [
+        'as' => 'autorecruit',
+        'uses' => 'App\Http\Controllers\ParseController@recruit'
+    ]);
+});
+
 $app->group(['prefix' => 'parse'], function ($app) {
-    $app->get(  '/',            'App\Http\Controllers\ParseController@index');
-    $app->post( 'initialize',   'App\Http\Controllers\ParseController@initialize');
-    $app->post( 'webhook',      'App\Http\Controllers\ParseController@webhook');
-    $app->post( 'login',        'App\Http\Controllers\ParseController@login');
+    $app->get('home', ['as' => 'home', 'uses' => 'App\Http\Controllers\ParseController@index']);
+    $app->post('initialize', 'App\Http\Controllers\ParseController@initialize');
+    $app->post('webhook', 'App\Http\Controllers\TelerivetController@webhook');
+    $app->post('login', 'App\Http\Controllers\ParseController@login');
+    $app->get('test', 'App\Http\Controllers\ParseController@test');
 });
