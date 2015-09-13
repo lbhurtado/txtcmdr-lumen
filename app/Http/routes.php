@@ -91,15 +91,19 @@ $app->get('parse/object', function () {
 });
 
 $app->group(['prefix'=>'telerivet'], function ($app) {
+    $app->post('autorecruit', [
+        'as' => 'autorecruit',
+        'uses' => 'App\Http\Controllers\ParseController@recruit'
+    ]);
 
     $app->post('recruit/{somenumber: (?:0|63)(?:[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])}', [
         'as' => 'recruit',
         'uses' => 'App\Http\Controllers\ParseController@recruit'
     ]);
 
-    $app->post('autorecruit', [
-        'as' => 'autorecruit',
-        'uses' => 'App\Http\Controllers\ParseController@recruit'
+    $app->post('verify/{somenumber: (?:0|63)(?:[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])}/{allegedotp: (?:[0-9][0-9][0-9][0-9])}', [
+        'as' => 'verify',
+        'uses' => 'App\Http\Controllers\ParseController@verify'
     ]);
 });
 

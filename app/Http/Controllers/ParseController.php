@@ -27,6 +27,13 @@ define('PARSE_USERNAME', 'username');
 
 class ParseController extends Controller
 {
+    private $request;
+
+    public function __construct(Request $request){
+        if (Telehook::isAuthorized($request))
+            $this->request = $request;
+    }
+
     public function initialize()
     {
         /*
@@ -125,10 +132,10 @@ class ParseController extends Controller
                             break;
                     }
                     break;
-                case 'recruiting':
+                case 'recruit':
                     return $this->recruit($request);
                     break;
-                case 'verifying':
+                case 'verify':
                     return $this->verify($request);
                     break;
             }
@@ -138,9 +145,9 @@ class ParseController extends Controller
     }
 
     public
-    function recruit(Request $request, $somenumber = null)
+    function recruit($somenumber = null)
     {
-        Telehook::isAuthorized($request);
+        Telehook::isAuthorized($this->request);
 
         //return "some number " . $somenumber;
 
@@ -161,7 +168,7 @@ class ParseController extends Controller
                 : "You are now in recruiting mode. Please enter mobile number of your recruit:";
             Telehook::getInstance()
                 ->setReply($msg)
-                ->setVariable("state.id|recruiting");
+                ->setVariable("state.id|recruit");
         }
 
         return Telehook::getInstance()->getResponse();
@@ -175,7 +182,7 @@ class ParseController extends Controller
         if (Telehook::isAuthorized($request)) {
             Telehook::getInstance()
                 ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
-                ->setVariable('state.id|recruiting');
+                ->setVariable('state.id|recruit');
         }
         return Telehook::getInstance()->getResponse();
     }
@@ -222,16 +229,17 @@ class ParseController extends Controller
         return $randomCode;
     }
 
-    private
-    function verify(Request $request)
+    public
+    function verify($somenumber, $allegedotp)
     {
-        $somenumber = Telehook::getVariable('contact.vars.recruit');
+        //$somenumber = Telehook::getVariable('contact.vars.recruit');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
+
         if ($mobile) {
-            $allegedOTP = Telehook::$content;
+            //$allegedOTP = Telehook::$content;
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $allegedOTP);  //use PARSE_USE_MASTERKEY
-                $sessionToken = $this->getSessionToken($mobile, $allegedOTP);
+                $sessionToken = $this->getSessionToken($mobile, $allegedotp);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
                 $user->setPassword(SECRET . $this->getRandomCode());
@@ -239,12 +247,12 @@ class ParseController extends Controller
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid. Congratulations!")
-                    ->setVariable("state.id|recruiting")
+                    ->setVariable("state.id|recruit")
                     ->addVariable("contact.vars.recruit|");
             } catch (ParseException $ex) {
                 Telehook::getInstance()
                     ->setReply("OTP is not valid! Please try again.")
-                    ->setVariable("state.id|verifying")
+                    ->setVariable("state.id|verify")
                     ->addVariable("contact.vars.recruit|$mobile");
             } finally {
                 return Telehook::getInstance()->getResponse();
