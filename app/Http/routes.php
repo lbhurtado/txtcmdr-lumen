@@ -91,6 +91,8 @@ $app->get('parse/object', function () {
 });
 
 $app->group(['prefix'=>'telerivet'], function ($app) {
+    $app->post('webhook', 'App\Http\Controllers\TelerivetController@webhook');
+    
     $app->post('autorecruit', [
         'as' => 'autorecruit',
         'uses' => 'App\Http\Controllers\ParseController@recruit'
