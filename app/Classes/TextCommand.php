@@ -71,7 +71,8 @@ class TextCommand
 
                             $this->parameters[$parameter] = current($found_record);
                         */
-                        $this->parameters[$parameter] = $regex;
+                        $value = array_where(Telehook::$inputs,$regex);
+                        $this->parameters[$parameter] = $value;
                     }
                 }
                 break;
