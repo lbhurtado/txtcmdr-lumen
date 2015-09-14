@@ -159,7 +159,7 @@ class Verify extends Maven
         //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
         $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
-        //$text = array_keys($this->getCommand()->getParameters());
+        $text = implode(' ', array_keys($this->getCommand()->getParameters()));
 
         /*
 
@@ -187,6 +187,6 @@ class Verify extends Maven
         }
         else
 */
-        return Telehook::getInstance()->getDebugResponse( $mobile ?: $somenumber );
+        return Telehook::getInstance()->getDebugResponse( $mobile ?: $text );
     }
 }
