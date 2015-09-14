@@ -42,6 +42,7 @@ class TelerivetController extends Controller
     public function webhook()
     {
         try {
+            return Telehook::getErrorResponse();
             switch (Telehook::$state) {
                 case TELEHOOK_NO_STATE:
                     $command = Telehook::$keyword;
