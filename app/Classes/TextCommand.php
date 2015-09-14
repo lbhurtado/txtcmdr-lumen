@@ -30,7 +30,7 @@ class TextCommand
             'pattern' => "/^(?<allegedotp>\d{4})$/",
             'parameters' => [
                 //"somenumber" => "/^contact(.|_)vars(.|_)recruit$/",
-                "somenumber" => "/^contact.vars.recruit$/",
+                "somenumber" => "contact.vars.recruit",
                 //"somenumber" => "/^contact_vars_recruit$/",
             ],
         ],
@@ -63,11 +63,15 @@ class TextCommand
                 $parameters = array_get($this->keywords, "$this->keyword.parameters");
                 if (is_array($parameters)) {
                     foreach (array_get($this->keywords, "$this->keyword.parameters") as $parameter => $regex) {
+                        /*
                         $found_record = array_where(Telehook::$inputs, function ($key) use ($regex) {
                             return preg_match($regex, $key);
                         });
                         if ($found_record)
+
                             $this->parameters[$parameter] = current($found_record);
+                        */
+                        $this->parameters[$parameter] = $regex;
                     }
                 }
                 break;
