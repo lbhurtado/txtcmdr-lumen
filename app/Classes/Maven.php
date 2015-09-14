@@ -156,8 +156,9 @@ class Verify extends Maven
 {
     public function getResponse()
     {
-        extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
-        $mobile = MobileAddress::getInstance($extracted_somenumber)->getServiceNumber();
+        //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
+        $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
+        $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         /*
 
         if ($mobile) {

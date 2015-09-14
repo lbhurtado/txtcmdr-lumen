@@ -47,7 +47,7 @@ class TelerivetController extends Controller
 
         return Maven::getInstance($this->request)->getResponse();
 
-        return $this->autoRecruit();
+        //return $this->autoRecruit();
         //return redirect()->route($command, $arguments);
 
     }
