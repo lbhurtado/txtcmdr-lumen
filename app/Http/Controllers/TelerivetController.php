@@ -73,11 +73,11 @@ class TelerivetController extends Controller
             //return $url;
             //return $arguments;
 
-        }
-        catch (ParseException $ex) {
+        } catch (ParseException $ex) {
             return Telehook::getDebugResponse('webhook');
         }
 
+        return Telehook::getDebugResponse($command);
         return redirect()->route($command, $arguments, 307);
     }
 }

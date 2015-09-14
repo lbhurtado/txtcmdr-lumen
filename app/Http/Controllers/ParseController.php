@@ -170,14 +170,14 @@ class ParseController extends Controller
                 }
             }
             else {
-                return Telehook::getInstance()->getResponse('not authorized');
+                return Telehook::getInstance()->getDebugResponse('not authorized');
             }
         }
         catch (ParseException $ex) {
-            return Telehook::getInstance()->getResponse('recruit exception');
+            Telehook::getDebugResponse('recruit');
         }
 
-        return Telehook::getDebugResponse('recruit');
+        return return Telehook::getInstance()->getResponse();
     }
 
     public
