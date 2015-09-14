@@ -148,7 +148,7 @@ class ParseController extends Controller
     function recruit($somenumber = null)
     {
         if (!Telehook::isAuthorized($this->request))
-            return Telehook::getErrorResponse();
+            return Telehook::getDebugResponse('recruit');
 
         //return "some number " . $somenumber;
 

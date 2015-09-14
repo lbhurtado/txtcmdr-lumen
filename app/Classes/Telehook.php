@@ -140,9 +140,9 @@ class Telehook
         return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
     }
 
-    public static function getErrorResponse()
+    public static function getDebugResponse($msg = 'debug')
     {
-        self::$reply = 'Error';
+        self::$reply = $msg;
         return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
     }
 }

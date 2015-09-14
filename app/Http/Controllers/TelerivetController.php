@@ -69,7 +69,7 @@ class TelerivetController extends Controller
                     }
                     break;
             }
-            //$url = route($command, $arguments, 307);
+            $url = route($command, $arguments, 307);
             //return $url;
             //return $arguments;
 
@@ -77,7 +77,7 @@ class TelerivetController extends Controller
         catch (ParseException $ex) {
 
         }
-        return Telehook::getErrorResponse();
+        return Telehook::getDebugResponse($url);
         return redirect()->route($command, $arguments, 307);
     }
 }
