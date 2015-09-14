@@ -147,32 +147,37 @@ class ParseController extends Controller
     public
     function recruit($somenumber = null)
     {
-        if (!Telehook::isAuthorized($this->request))
-            return Telehook::getDebugResponse('recruit');
-
-        //return "some number " . $somenumber;
-
-        $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
-        if ($mobile) {
-            $randomCode =
-                ($user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY))
-                    ? $this->updateParseUserWithRandomCode($user)
-                    : $this->signupParseUserWithRandomCode($mobile);
-            Telehook::getInstance()
-                ->setReply("The OTP was already sent to $mobile.")
-                ->setForward("$mobile|Your OTP is $randomCode")
-                ->setVariable("state.id|verifying")
-                ->addVariable("contact.vars.recruit|$mobile");
-        } else {
-            $msg = is_int($somenumber)
-                ? "$somenumber is not a valid mobile number. "
-                : "You are now in recruiting mode. Please enter mobile number of your recruit:";
-            Telehook::getInstance()
-                ->setReply($msg)
-                ->setVariable("state.id|recruit");
+        try {
+            if (Telehook::isAuthorized($this->request)) {
+                $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
+                if ($mobile) {
+                    $randomCode =
+                        ($user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY))
+                            ? $this->updateParseUserWithRandomCode($user)
+                            : $this->signupParseUserWithRandomCode($mobile);
+                    Telehook::getInstance()
+                        ->setReply("The OTP was already sent to $mobile.")
+                        ->setForward("$mobile|Your OTP is $randomCode")
+                        ->setVariable("state.id|verifying")
+                        ->addVariable("contact.vars.recruit|$mobile");
+                } else {
+                    $msg = is_int($somenumber)
+                        ? "$somenumber is not a valid mobile number. "
+                        : "You are now in recruiting mode. Please enter mobile number of your recruit:";
+                    Telehook::getInstance()
+                        ->setReply($msg)
+                        ->setVariable("state.id|recruit");
+                }
+            }
+            else {
+                return Telehook::getInstance()->getResponse('not authorized');
+            }
+        }
+        catch (ParseException $ex) {
+            return Telehook::getInstance()->getResponse('recruit exception');
         }
 
-        return Telehook::getInstance()->getResponse();
+        return Telehook::getDebugResponse('recruit');
     }
 
     public
