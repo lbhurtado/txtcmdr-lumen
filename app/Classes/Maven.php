@@ -164,7 +164,7 @@ class Verify extends Maven
                 $sessionToken = $this->getSessionToken($mobile, $extracted_allegedotp);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
-                $user->setPassword(SECRET . $this->getRandomCode());
+                //$user->setPassword(SECRET . $this->getRandomCode());
                 $user->save();
                 Telehook::getInstance()
                     ->setReply("OTP is valid.")
