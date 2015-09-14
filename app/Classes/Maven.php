@@ -157,8 +157,9 @@ class Verify extends Maven
     public function getResponse()
     {
         extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
-        /*
         $mobile = MobileAddress::getInstance($extracted_somenumber)->getServiceNumber();
+        /*
+
         if ($mobile) {
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
