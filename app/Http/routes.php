@@ -95,7 +95,7 @@ $app->group(['prefix'=>'telerivet'], function ($app) {
 
     $app->post('autorecruit', [
         'as' => 'autorecruit',
-        'uses' => 'App\Http\Controllers\ParseController@recruit'
+        'uses' => 'App\Http\Controllers\ParseController@autorecruit'
     ]);
 
     $app->post('recruit/{somenumber: (?:0|63)(?:[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])}', [
