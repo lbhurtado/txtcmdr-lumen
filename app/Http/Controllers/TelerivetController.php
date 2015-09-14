@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Classes\Telehook;
 use App\Classes\MobileAddress;
-use Symfony\Component\Yaml\Exception\ParseException;
+use App\Classes\TextCommand;
 
 define('TELEHOOK_NO_STATE', '');
 
@@ -35,12 +35,12 @@ class TelerivetController extends Controller
 
     public function __construct(Request $request)
     {
-        if (Telehook::isAuthorized($request))
-            $this->request = $request;
+        $this->request = $request;
     }
 
     public function webhook()
     {
+        /*
         try {
 
             switch (Telehook::$state) {
@@ -76,9 +76,9 @@ class TelerivetController extends Controller
         } catch (ParseException $ex) {
             return Telehook::getDebugResponse('webhook');
         }
-
-        //return Telehook::getDebugResponse("webhook " . $url);
-        //return redirect()->route($command, $arguments, 307);
+        */
+        $command = new TextCommand($this->request);
+        $url = route($command->getCommand(), $command->getArguments(), 307);
 
         return $this->autoRecruit();
         return redirect()->route($command, $arguments);
