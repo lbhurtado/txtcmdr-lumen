@@ -191,6 +191,6 @@ class Verify extends Maven
         }
         else
 */
-        return Telehook::getInstance()->getDebugResponse($text );
+        return Telehook::getInstance()->getDebugResponse($text ?: "no text" );
     }
 }
