@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Classes;
+
 use Illuminate\Http\Request;
 
 
@@ -70,7 +71,8 @@ class Telehook
         return static::getInstance();
     }
 
-    public static function getVariable($variable) {
+    public static function getVariable($variable)
+    {
         $result = static::$request->input($variable);
         if (!$result)
             $result = static::$request->input(str_replace('.', '_', $variable));
@@ -89,7 +91,8 @@ class Telehook
         return static::$_instance;
     }
 
-    public static function isAuthorized(Request $request){
+    public static function isAuthorized(Request $request)
+    {
         if ($request->input('secret') === env('TELERIVET_WEBHOOK_SECRET')) {
             if ($request->input('event') == 'incoming_message') {
                 static::$request = $request;
@@ -124,7 +127,22 @@ class Telehook
         return $ar;
     }
 
-    public function getResponse(){
+    public static function getError()
+    {
+        return [
+            'messages' =>
+                ['content' => 'error here.',]
+        ];
+    }
+
+    public function getResponse()
+    {
+        return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
+    }
+
+    public static function getErrorResponse()
+    {
+        self::$reply = 'Error';
         return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
     }
 }
