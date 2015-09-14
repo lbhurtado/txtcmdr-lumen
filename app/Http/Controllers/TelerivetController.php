@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 use App\Classes\Telehook;
 use App\Classes\MobileAddress;
 use App\Classes\TextCommand;
+use App\Classes\Maven;
 
 define('TELEHOOK_NO_STATE', '');
 
@@ -40,48 +41,14 @@ class TelerivetController extends Controller
 
     public function webhook()
     {
-        /*
-        try {
-
-            switch (Telehook::$state) {
-                case TELEHOOK_NO_STATE:
-                    $command = Telehook::$keyword;
-                    $arguments = Telehook::$arguments;
-                    break;
-                default:
-                    $command = Telehook::$state;
-                    $pattern = array_get($this->commands, "$command.pattern");
-                    $arguments = preg_match($pattern, Telehook::$content, $matches)
-                        ? array_where($matches, function ($key) {
-                            return preg_match("/^[a-zA-Z]*$/", $key);
-                        })
-                        : array();
-
-                    $parameters = array_get($this->commands, "$command.parameters");
-                    if (is_array($parameters)) {
-                        foreach (array_get($this->commands, "$command.parameters") as $parameter => $regex) {
-                            $found_record = array_where(Telehook::$inputs, function ($key) use ($regex) {
-                                return preg_match($regex, $key);
-                            });
-                            if ($found_record)
-                                $arguments[$parameter] = current($found_record);
-                        }
-                    }
-                    break;
-            }
-            $url = route($command, $arguments, 307);
-            //return $url;
-            //return $arguments;
-
-        } catch (ParseException $ex) {
-            return Telehook::getDebugResponse('webhook');
-        }
-        */
         $command = new TextCommand($this->request);
-        $url = route($command->getCommand(), $command->getArguments(), 307);
+        //$url = route($command->getKeyword(), $command->getParameters(), 307);
+
+
+        return Maven::getInstance($this->request)->getResponse();
 
         return $this->autoRecruit();
-        return redirect()->route($command, $arguments);
+        //return redirect()->route($command, $arguments);
 
     }
 

@@ -19,8 +19,8 @@ use App\Classes\MobileAddress;
 define('SECRET', env('PARSE_OTP_PREFIX'));
 define('DEFAULT_INTERNATIONAL_PREFIX', '63');
 define('VALID_MOBILE_PATTERN', "/^(" . "?P<country>0" . "|" . "63" . ")(?P<mobile>\d{10})$/");
-define('RANDOM_FLOOR', 1000);
-define('RANDOM_CEILING', 9999);
+define('RANDOM_FLOOR', 1000); // deprecate
+define('RANDOM_CEILING', 9999); // deprecate
 define('NO_STATE', '');
 define('PARSE_USE_MASTERKEY', true);
 define('PARSE_USERNAME', 'username');

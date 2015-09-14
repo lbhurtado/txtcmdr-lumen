@@ -18,11 +18,11 @@ class TextCommand
 
     private $request;
 
-    private $command = '';
+    private $keyword = '';
 
-    private $arguments = [];
+    private $parameters = [];
 
-    private $commands = [
+    protected $keywords = [
         'recruit' => [
             'pattern' => "/^(?<somenumber>(0|63)(\d{10}))(?<text>.*)$/",
         ],
@@ -47,39 +47,39 @@ class TextCommand
     {
         switch (Telehook::$state) {
             case TELEHOOK_NO_STATE:
-                $this->command = Telehook::$keyword;
-                $this->arguments = Telehook::$arguments;
+                $this->keyword = Telehook::$keyword;
+                $this->parameters = Telehook::$arguments;
                 break;
             default:
-                $this->command = Telehook::$state;
-                $pattern = array_get($this->commands, "$this->command.pattern");
-                $this->arguments = preg_match($pattern, Telehook::$content, $matches)
+                $this->keyword = Telehook::$state;
+                $pattern = array_get($this->keywords, "$this->keyword.pattern");
+                $this->parameters = preg_match($pattern, Telehook::$content, $matches)
                     ? array_where($matches, function ($key) {
                         return preg_match("/^[a-zA-Z]*$/", $key);
                     })
                     : array();
 
-                $parameters = array_get($this->commands, "$this->command.parameters");
+                $parameters = array_get($this->keywords, "$this->keyword.parameters");
                 if (is_array($parameters)) {
-                    foreach (array_get($this->commands, "$this->command.parameters") as $parameter => $regex) {
+                    foreach (array_get($this->keywords, "$this->keyword.parameters") as $parameter => $regex) {
                         $found_record = array_where(Telehook::$inputs, function ($key) use ($regex) {
                             return preg_match($regex, $key);
                         });
                         if ($found_record)
-                            $this->arguments[$parameter] = current($found_record);
+                            $this->parameters[$parameter] = current($found_record);
                     }
                 }
                 break;
         }
     }
 
-    public function getCommand()
+    public function getKeyword()
     {
-        return $this->command;
+        return $this->keyword;
     }
 
-    public function getArguments()
+    public function getParameters()
     {
-        return $this->arguments;
+        return $this->parameters;
     }
 }
