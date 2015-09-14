@@ -78,6 +78,7 @@ class TelerivetController extends Controller
         }
 
         //return Telehook::getDebugResponse("webhook " . $url);
-        return redirect()->route($command, $arguments, 307);
+        //return redirect()->route($command, $arguments, 307);
+        return redirect()->route($command, $arguments);
     }
 }

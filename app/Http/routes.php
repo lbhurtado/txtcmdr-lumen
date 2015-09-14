@@ -94,7 +94,7 @@ $app->get('parse/object', function () {
 $app->group(['prefix'=>'telerivet'], function ($app) {
     $app->post('webhook', 'App\Http\Controllers\TelerivetController@webhook');
 
-    $app->post('autorecruit', [
+    $app->get('autorecruit', [
         'as' => 'autorecruit', function (){
             return Telehook::getInstance()->getDebugResponse('autorecruit');
         }
