@@ -156,8 +156,8 @@ class Verify extends Maven
 {
     public function getResponse()
     {
-        //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
-        //$mobile = MobileAddress::getInstance($extracted_somenumber)->getServiceNumber();
+        extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
+        $mobile = MobileAddress::getInstance($extracted_somenumber)->getServiceNumber();
         /*
 
         if ($mobile) {
@@ -184,6 +184,6 @@ class Verify extends Maven
         }
         else
 */
-        return Telehook::getInstance()->getDebugResponse('Verify getResponse()');
+        return Telehook::getInstance()->getDebugResponse( $mobile ?: "not mobile" );
     }
 }
