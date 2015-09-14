@@ -162,8 +162,8 @@ class Verify extends Maven
         //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
         $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
-        $text = implode(' ', array_keys($this->getCommand()->getParameters()));
-        //$text = implode(' ', array_keys(parent::$request->all()));
+        //$text = implode(' ', array_keys($this->getCommand()->getParameters()));
+        $text = implode(' ', array_keys(parent::$request->all()));
 
         /*
 
