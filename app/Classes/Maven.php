@@ -33,6 +33,8 @@ abstract class Maven
 
     private $command;
 
+    public static $request;
+
     protected function __construct(TextCommand $command)
     {
         $this->command = $command;
@@ -40,7 +42,8 @@ abstract class Maven
 
     public static function getInstance(Request $request)
     {
-        $command = new TextCommand($request);
+        static::$request = $request;
+        $command = new TextCommand(static::$request);
         switch ($command->getKeyword()) {
             case 'autorecruit':
                 return new AutoRecruit($command);
@@ -160,6 +163,7 @@ class Verify extends Maven
         $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         $text = implode(' ', array_keys($this->getCommand()->getParameters()));
+        //$text = implode(' ', array_keys(parent::$request->all()));
 
         /*
 
@@ -187,6 +191,6 @@ class Verify extends Maven
         }
         else
 */
-        return Telehook::getInstance()->getDebugResponse( $mobile ?: $text );
+        return Telehook::getInstance()->getDebugResponse($text );
     }
 }
