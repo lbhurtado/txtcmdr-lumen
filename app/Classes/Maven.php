@@ -33,7 +33,7 @@ abstract class Maven
 
     private $command;
 
-    public static $request;
+    protected static $request;
 
     protected function __construct(TextCommand $command)
     {
@@ -159,11 +159,15 @@ class Verify extends Maven
 {
     public function getResponse()
     {
+        Telehook::isAuthorized(static::$request);
         //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
         $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
-        //$text = implode(' ', array_keys($this->getCommand()->getParameters()));
-        $text = serialize(parent::$request->input['contact']);
+        $text = implode(' ', array_keys(Telehook::$inputs));
+        //$text = serialize(parent::$request->input['contact']);
+        //$text = implode(' ', static::$request);
+
+
 
         /*
 
