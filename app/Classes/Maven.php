@@ -160,22 +160,22 @@ class Verify extends Maven
     public function getResponse()
     {
         Telehook::isAuthorized(static::$request);
-        //extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'extracted');
-        $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
+        extract($this->getCommand()->getParameters());
+        //$somenumber = array_get($this->getCommand()->getParameters(), 'extracted_somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
 
         //$text = implode(' ', array_keys(Telehook::$inputs['contact']['vars']));
 
-        //$text = implode(' ', $this->getCommand()->getParameters());
+        //$text = implode(' ', array_keys($this->getCommand()->getParameters()));
         //$text = serialize(parent::$request->input['contact']);
         //$text = implode(' ', static::$request);
-        $text = array_get(Telehook::$inputs,'contact.vars.recruit');
+        //$text = array_get(Telehook::$inputs,'contact.vars.recruit');
 
-/*
+
         if ($mobile) {
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
-                $sessionToken = $this->getSessionToken($mobile, $extracted_allegedotp);
+                $sessionToken = $this->getSessionToken($mobile, $allegedotp);
                 $user = ParseUser::become($sessionToken);
                 $user->set('phone', $mobile);
                 //$user->setPassword(SECRET . $this->getRandomCode());
@@ -194,7 +194,7 @@ class Verify extends Maven
                 return Telehook::getInstance()->getResponse();
             }
         } else
-*/
-            return Telehook::getInstance()->getDebugResponse($text ?: "no text");
+
+            return Telehook::getInstance()->getDebugResponse($mobile ?: "no text");
     }
 }
