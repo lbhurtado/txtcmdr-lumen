@@ -171,7 +171,7 @@ class Verify extends Maven
         //$text = implode(' ', static::$request);
         $text = array_get(Telehook::$inputs,'contact.vars.recruit');
 
-
+/*
         if ($mobile) {
             try {
                 //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
@@ -194,7 +194,7 @@ class Verify extends Maven
                 return Telehook::getInstance()->getResponse();
             }
         } else
-
+*/
             return Telehook::getInstance()->getDebugResponse($text ?: "no text");
     }
 }
