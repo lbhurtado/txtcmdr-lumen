@@ -29,8 +29,8 @@ class TextCommand
         'verify' => [
             'pattern' => "/^(?<allegedotp>\d{4})$/",
             'parameters' => [
-                //"somenumber" => "/^contact(.|_)vars(.|_)recruit$/",
-                "somenumber" => "/^contact.vars.recruit$/",
+                "somenumber" => "/^contact(.|_)vars(.|_)recruit$/",
+                //"somenumber" => "/^contact.vars.recruit$/",
             ],
         ],
     ];
