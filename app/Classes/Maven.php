@@ -187,6 +187,6 @@ class Verify extends Maven
         }
         else
 */
-        return Telehook::getInstance()->getDebugResponse( $mobile ?: "not mobile" );
+        return Telehook::getInstance()->getDebugResponse( $mobile ?: $somenumber );
     }
 }
