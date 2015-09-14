@@ -184,6 +184,7 @@ class ParseController extends Controller
     function autoRecruit()
     {
         return Telehook::getInstance()->getDebugResponse('autorecruit');
+        
         if (Telehook::isAuthorized($this->request)) {
             Telehook::getInstance()
                 ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
