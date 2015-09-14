@@ -79,6 +79,20 @@ class TelerivetController extends Controller
 
         //return Telehook::getDebugResponse("webhook " . $url);
         //return redirect()->route($command, $arguments, 307);
+
+        return $this->autoRecruit();
         return redirect()->route($command, $arguments);
+
+    }
+
+    private
+    function autoRecruit()
+    {
+        if (Telehook::isAuthorized($this->request)) {
+            Telehook::getInstance()
+                ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+                ->setVariable('state.id|recruit');
+        }
+        return Telehook::getInstance()->getResponse();
     }
 }
