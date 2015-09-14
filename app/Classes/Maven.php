@@ -163,7 +163,7 @@ class Verify extends Maven
         $somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         //$text = implode(' ', array_keys($this->getCommand()->getParameters()));
-        $text = implode(' ', array_keys(parent::$request->all()));
+        $text = serialize(parent::$request->all());
 
         /*
 
