@@ -71,9 +71,10 @@ class TelerivetController extends Controller
             //$url = route($command, $arguments, 307);
             //return $url;
             //return $arguments;
+
         }
         catch (ParseException $ex) {
-            return Telehook::getErrorResponse();
+
         }
         return redirect()->route($command, $arguments, 307);
     }
