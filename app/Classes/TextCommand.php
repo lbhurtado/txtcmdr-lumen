@@ -30,8 +30,8 @@ class TextCommand
             'pattern' => "/^(?<allegedotp>\d{4})$/",
             'parameters' => [
                 //"somenumber" => "/^contact(.|_)vars(.|_)recruit$/",
-                //"somenumber" => "/^contact.vars.recruit$/",
-                "somenumber" => "/^contact_vars_recruit$/",
+                "somenumber" => "/^contact.vars.recruit$/",
+                //"somenumber" => "/^contact_vars_recruit$/",
             ],
         ],
     ];
