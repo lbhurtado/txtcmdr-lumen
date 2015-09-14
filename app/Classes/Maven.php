@@ -166,13 +166,10 @@ class Verify extends Maven
 
         //$text = implode(' ', array_keys(Telehook::$inputs['contact']['vars']));
 
-        $text = implode(' ', $this->getCommand()->getParameters());
+        //$text = implode(' ', $this->getCommand()->getParameters());
         //$text = serialize(parent::$request->input['contact']);
         //$text = implode(' ', static::$request);
 
-
-
-        /*
 
         if ($mobile) {
             try {
@@ -195,9 +192,8 @@ class Verify extends Maven
             } finally {
                 return Telehook::getInstance()->getResponse();
             }
-        }
-        else
-*/
-        return Telehook::getInstance()->getDebugResponse($text ?: "no text");
+        } else
+
+            return Telehook::getInstance()->getDebugResponse($somenumber ?: "no text");
     }
 }
