@@ -137,7 +137,7 @@ class Recruit extends Maven
             Telehook::getInstance()
                 ->setReply("The OTP was already sent to $mobile.")
                 ->setForward("$mobile|Your OTP is $randomCode")
-                ->setVariable("state.id|verifying")
+                ->setVariable("state.id|verify")
                 ->addVariable("contact.vars.recruit|$mobile");
         } else {
             $msg = is_int($hook_somenumber)
