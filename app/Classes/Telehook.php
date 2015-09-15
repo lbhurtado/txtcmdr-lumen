@@ -37,20 +37,17 @@ class Telehook
         return static::getInstance();
     }
 
-    public function setForward($pipe_delimited_text)
+    public function setForward($mobile, $missive)
     {
         static::$forwards = array();
-        $forward = explode('|', $pipe_delimited_text);
-        static::$forwards[$forward[0]] = $forward[1];
+        static::$forwards[$mobile] = $missive;
 
         return static::getInstance();
     }
 
-    public function addForward($pipe_delimited_text)
+    public function addForward($mobile, $missive)
     {
-        $forward = explode('|', $pipe_delimited_text);
-        static::$forwards[$forward[0]] = $forward[1];
-
+        static::$forwards[$mobile] = $missive;
         return static::getInstance();
     }
 

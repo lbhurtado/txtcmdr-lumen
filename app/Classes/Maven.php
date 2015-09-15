@@ -33,6 +33,14 @@ abstract class Maven
 
     private $command;
 
+    protected $description;
+
+    protected $reply;
+
+    protected $state;
+
+    protected $addtoGroups;
+
     protected function __construct(TextCommand $command)
     {
         $this->command = $command;
@@ -110,20 +118,57 @@ abstract class Maven
             )
         );
     }
+
+    protected function getDescription()
+    {
+        return $this->description;
+    }
+
+    protected function getReply()
+    {
+        if (array_get($this->getCommand()->getParameters(), 'help'))
+            return $this->getDescription();
+        else
+            return $this->reply;
+    }
+
+    protected function getState()
+    {
+        if (array_get($this->getCommand()->getParameters(), 'help'))
+            return Telehook::$state;
+        else
+            return $this->state;
+    }
+
+    protected function getAddtoGroups()
+    {
+        if (array_get($this->getCommand()->getParameters(), 'help'))
+            return '';
+        else
+            return $this->addtoGroups;
+    }
 }
 
 class AutoRecruit extends Maven
 {
+
+    protected $description = "Help";
+
+    protected $reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
+
+    protected $state = "recruit";
+
+    protected $addtoGroups = "recruiter";
+
     public function getResponse()
     {
-        $reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
-        //$reply = json_encode(Telehook::$inputs);
+        //$reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
+
         return Telehook::getInstance()
-            ->setReply($reply)
-            ->setState("recruit")
-            //->addVariable("\$newgroup|CAMPAIGN")
-            //->addVariable("contact.vars.addtogroups|group1,group2")
-            ->addtoGroups(['group1','group2'])
+            ->setReply($this->getReply())
+            ->setState($this->getState())
+            ->addVariable("\$testvar|APPLESTER")
+            ->addtoGroups($this->getAddtoGroups())
             ->getResponse();
     }
 }
@@ -148,7 +193,7 @@ class Recruit extends Maven
                 : "You are now in recruiting mode. Please enter mobile number of your recruit:";
             Telehook::getInstance()
                 ->setReply($msg)
-                ->setVariable("state.id|recruit");
+                ->setState("recruit");
         }
 
         $randomCode =
@@ -158,12 +203,14 @@ class Recruit extends Maven
 
         Telehook::getInstance()
             ->setReply("The OTP was already sent to $mobile.")
-            ->setForward("$mobile|Your OTP is $randomCode")
-            ->setVariable("state.id|verify")
+            ->setForward($mobile, "Your OTP is $randomCode")
+            ->setState("verify")
             ->addVariable("contact.vars.recruit|$mobile");
 
 
-        return Telehook::getInstance()->getResponse();
+        return Telehook::getInstance()
+            ->addtoGroups("recruiter")
+            ->getResponse();
     }
 }
 
@@ -198,7 +245,7 @@ class Verify extends Maven
             $user->save();
             Telehook::getInstance()
                 ->setReply("OTP is valid.")
-                ->setForward("$mobile|Your OTP is valid. Congratulations!")
+                ->setForward($mobile, "Your OTP is valid. Congratulations!")
                 ->setVariable("state.id|recruit")
                 ->addVariable("contact.vars.recruit|");
         } catch (ParseException $ex) {
