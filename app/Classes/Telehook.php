@@ -16,7 +16,7 @@ class Telehook
     public static $forwards = array();
     public static $variables = array();
     private static $_instance = null;
-    private static $request = null;
+    public static $request = null;
     public static $content = null;
     private static $content_array = array();
     public static $word1 = null;
