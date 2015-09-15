@@ -122,7 +122,7 @@ class AutoRecruit extends Maven
             //->setReply($reply)
             //->setVariable('state.id|recruit')
             //->addVariable("\$newgroup|CAMPAIGN")
-            ->addVariable("return_value|false")
+            ->addVariable("return_value|0")
             ->getResponse();
     }
 }
