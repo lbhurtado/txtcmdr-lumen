@@ -30,7 +30,7 @@ abstract class Maven
     const PARSE_USERNAME = 'username';
 
     const PARSE_USE_MASTERKEY = true;
-    protected static $request;
+
     private $command;
 
     protected function __construct(TextCommand $command)
@@ -40,8 +40,7 @@ abstract class Maven
 
     public static function getInstance(Request $request)
     {
-        static::$request = $request;
-        $command = new TextCommand(static::$request);
+        $command = new TextCommand($request);
         switch ($command->getKeyword()) {
             case 'autorecruit':
                 return new AutoRecruit($command);
@@ -118,7 +117,7 @@ class AutoRecruit extends Maven
     public function getResponse()
     {
         return Telehook::getInstance()
-            ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
+            ->setReply('You are now in auto-recruit mode. Please enter mobile number of your recruit:')
             ->setVariable('state.id|recruit')
             ->getResponse();
     }
@@ -137,17 +136,8 @@ class Recruit extends Maven
         }
 
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
-        if ($mobile) {
-            $randomCode =
-                ($user = ParseUser::query()->equalTo(Maven::PARSE_USERNAME, $mobile)->first(Maven::PARSE_USE_MASTERKEY))
-                    ? $this->updateParseUserWithRandomCode($user)
-                    : $this->signupParseUserWithRandomCode($mobile);
-            Telehook::getInstance()
-                ->setReply("The OTP was already sent to $mobile.")
-                ->setForward("$mobile|Your OTP is $randomCode")
-                ->setVariable("state.id|verify")
-                ->addVariable("contact.vars.recruit|$mobile");
-        } else {
+
+        if (!$mobile) {
             $msg = is_int($somenumber)
                 ? "somenumber is not a valid mobile number. "
                 : "You are now in recruiting mode. Please enter mobile number of your recruit:";
@@ -155,6 +145,18 @@ class Recruit extends Maven
                 ->setReply($msg)
                 ->setVariable("state.id|recruit");
         }
+
+        $randomCode =
+            ($user = ParseUser::query()->equalTo(Maven::PARSE_USERNAME, $mobile)->first(Maven::PARSE_USE_MASTERKEY))
+                ? $this->updateParseUserWithRandomCode($user)
+                : $this->signupParseUserWithRandomCode($mobile);
+
+        Telehook::getInstance()
+            ->setReply("The OTP was already sent to $mobile.")
+            ->setForward("$mobile|Your OTP is $randomCode")
+            ->setVariable("state.id|verify")
+            ->addVariable("contact.vars.recruit|$mobile");
+
 
         return Telehook::getInstance()->getResponse();
     }
@@ -178,12 +180,12 @@ class Verify extends Maven
         }
 
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
+
         if (!$mobile) {
             return Telehook::getInstance()->getDebugResponse("Error! Mobile number is not valid.");
         }
-        
-        try {
 
+        try {
             $sessionToken = $this->getSessionToken($mobile, $allegedotp);
             $user = ParseUser::become($sessionToken);
             $user->set('phone', $mobile);
@@ -199,9 +201,9 @@ class Verify extends Maven
                 ->setReply("OTP is not valid! Please try again.")
                 ->setVariable("state.id|verify")
                 ->addVariable("contact.vars.recruit|$mobile");
-        } finally {
-            return Telehook::getInstance()->getResponse();
         }
+
+        return Telehook::getInstance()->getResponse();
 
     }
 }
