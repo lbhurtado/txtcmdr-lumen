@@ -121,8 +121,8 @@ class AutoRecruit extends Maven
         return Telehook::getInstance()
             ->setReply($reply)
             ->setVariable('state.id|recruit')
-            ->addVariable("\$newgroup|CAMPAIGN")
-            ->addVariable("contact.vars.q1|name")
+            //->addVariable("\$newgroup|CAMPAIGN")
+            ->addVariable("contact.vars.addtogroups|group1,group2")
             ->addVariable("return_value|0")
             ->getResponse();
     }
