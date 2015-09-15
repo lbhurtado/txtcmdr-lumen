@@ -30,10 +30,8 @@ abstract class Maven
     const PARSE_USERNAME = 'username';
 
     const PARSE_USE_MASTERKEY = true;
-
-    private $command;
-
     protected static $request;
+    private $command;
 
     protected function __construct(TextCommand $command)
     {
@@ -102,6 +100,7 @@ abstract class Maven
 
     protected function getSessionToken($somenumber, $allegedOTP)
     {
+        //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
 
         return ParseCloud::run(
@@ -129,9 +128,15 @@ class Recruit extends Maven
 {
     public function getResponse()
     {
-        //$somenumber = array_get($this->getCommand()->getParameters(), 'somenumber');
-        extract($this->getCommand()->getParameters(), EXTR_PREFIX_ALL, 'hook');
-        $mobile = MobileAddress::getInstance($hook_somenumber)->getServiceNumber();
+        $somenumber = null;
+
+        extract($this->getCommand()->getParameters());
+
+        if (!$somenumber) {
+            return Telehook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
+        }
+
+        $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         if ($mobile) {
             $randomCode =
                 ($user = ParseUser::query()->equalTo(Maven::PARSE_USERNAME, $mobile)->first(Maven::PARSE_USE_MASTERKEY))
@@ -143,7 +148,7 @@ class Recruit extends Maven
                 ->setVariable("state.id|verify")
                 ->addVariable("contact.vars.recruit|$mobile");
         } else {
-            $msg = is_int($hook_somenumber)
+            $msg = is_int($somenumber)
                 ? "somenumber is not a valid mobile number. "
                 : "You are now in recruiting mode. Please enter mobile number of your recruit:";
             Telehook::getInstance()
@@ -159,42 +164,44 @@ class Verify extends Maven
 {
     public function getResponse()
     {
-        Telehook::isAuthorized(static::$request);
+        $somenumber = null;
+        $allegedotp = null;
+
         extract($this->getCommand()->getParameters());
-        //$somenumber = array_get($this->getCommand()->getParameters(), 'extracted_somenumber');
+
+        if (!$allegedotp) {
+            return Telehook::getInstance()->getDebugResponse("Error! No allegedotp parameter in http.");
+        }
+
+        if (!$somenumber) {
+            return Telehook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
+        }
+
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
+        if (!$mobile) {
+            return Telehook::getInstance()->getDebugResponse("Error! Mobile number is not valid.");
+        }
+        
+        try {
 
-        //$text = implode(' ', array_keys(Telehook::$inputs['contact']['vars']));
+            $sessionToken = $this->getSessionToken($mobile, $allegedotp);
+            $user = ParseUser::become($sessionToken);
+            $user->set('phone', $mobile);
+            $user->setPassword(SECRET . $this->getRandomCode());
+            $user->save();
+            Telehook::getInstance()
+                ->setReply("OTP is valid.")
+                ->setForward("$mobile|Your OTP is valid. Congratulations!")
+                ->setVariable("state.id|recruit")
+                ->addVariable("contact.vars.recruit|");
+        } catch (ParseException $ex) {
+            Telehook::getInstance()
+                ->setReply("OTP is not valid! Please try again.")
+                ->setVariable("state.id|verify")
+                ->addVariable("contact.vars.recruit|$mobile");
+        } finally {
+            return Telehook::getInstance()->getResponse();
+        }
 
-        //$text = implode(' ', array_keys($this->getCommand()->getParameters()));
-        //$text = serialize(parent::$request->input['contact']);
-        //$text = implode(' ', static::$request);
-        //$text = array_get(Telehook::$inputs,'contact.vars.recruit');
-
-
-        if ($mobile) {
-            try {
-                //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
-                $sessionToken = $this->getSessionToken($mobile, $allegedotp);
-                $user = ParseUser::become($sessionToken);
-                $user->set('phone', $mobile);
-                //$user->setPassword(SECRET . $this->getRandomCode());
-                $user->save();
-                Telehook::getInstance()
-                    ->setReply("OTP is valid.")
-                    ->setForward("$mobile|Your OTP is valid. Congratulations!")
-                    ->setVariable("state.id|recruit")
-                    ->addVariable("contact.vars.recruit|");
-            } catch (ParseException $ex) {
-                Telehook::getInstance()
-                    ->setReply("OTP is not valid! Please try again.")
-                    ->setVariable("state.id|verify")
-                    ->addVariable("contact.vars.recruit|$mobile");
-            } finally {
-                return Telehook::getInstance()->getResponse();
-            }
-        } else
-
-            return Telehook::getInstance()->getDebugResponse($mobile ?: "no text");
     }
 }
