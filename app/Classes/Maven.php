@@ -117,7 +117,7 @@ class AutoRecruit extends Maven
     public function getResponse()
     {
         $reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
-        $reply = serialize(Telehook::$inputs);
+        $reply = json_encode(Telehook::$inputs);
         return Telehook::getInstance()
             ->setReply($reply)
             ->setVariable('state.id|recruit')
