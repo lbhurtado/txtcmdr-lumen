@@ -76,6 +76,8 @@ class Telehook
     }
 
     public function addtoGroups($comma_delimited_text){
+        if (is_array($comma_delimited_text))
+            $comma_delimited_text = implode(',', $comma_delimited_text);
         return $this->addVariable("contact.vars.addtogroups|$comma_delimited_text");
     }
 
