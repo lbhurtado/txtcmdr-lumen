@@ -123,7 +123,7 @@ class AutoRecruit extends Maven
             ->setState("recruit")
             //->addVariable("\$newgroup|CAMPAIGN")
             //->addVariable("contact.vars.addtogroups|group1,group2")
-            ->addtoGroups([group1,group2])
+            ->addtoGroups(['group1','group2'])
             ->getResponse();
     }
 }
