@@ -13,6 +13,8 @@ use App\Classes\Telehook;
 
 class TextCommand
 {
+    const TELEHOOK_NO_STATE = '';
+
     protected $keywords = [
         'recruit' => [
             'text_pattern' => "/^(?<somenumber>(0|63)(\d{10}))(?<text>.*)$/", //used for preg_match
@@ -39,7 +41,7 @@ class TextCommand
     protected function conjure()
     {
         switch (Telehook::$state) {
-            case TELEHOOK_NO_STATE:
+            case TextCommand::TELEHOOK_NO_STATE:
                 $this->keyword = Telehook::$keyword;
                 $this->parameters = Telehook::$arguments;
 
