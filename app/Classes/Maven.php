@@ -120,10 +120,11 @@ class AutoRecruit extends Maven
         //$reply = json_encode(Telehook::$inputs);
         return Telehook::getInstance()
             ->setReply($reply)
-            ->setVariable('state.id|recruit')
+            ->setState("recruit")
             //->addVariable("\$newgroup|CAMPAIGN")
-            ->addVariable("contact.vars.addtogroups|group1,group2")
-            ->addVariable("return_value|0")
+            //->addVariable("contact.vars.addtogroups|group1,group2")
+            ->addtoGroups("group1,group2")
+            //->addVariable("return_value|0")
             ->getResponse();
     }
 }

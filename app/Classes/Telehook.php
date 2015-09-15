@@ -63,12 +63,20 @@ class Telehook
         return static::getInstance();
     }
 
+    public function setState($state){
+        return $this->setVariable("state.id|$state") ;
+    }
+
     public function addVariable($pipe_delimited_text)
     {
         $var = explode('|', $pipe_delimited_text);
         static::$variables[$var[0]] = $var[1];
 
         return static::getInstance();
+    }
+
+    public function addtoGroups($comma_delimited_text){
+        return $this->addVariable("contact.vars.addtogroups|$comma_delimited_text");
     }
 
     public static function getVariable($variable)
@@ -137,6 +145,7 @@ class Telehook
 
     public function getResponse()
     {
+        $this->addVariable("return_value|0");
         return response(view('webhook', static::getData()), 200, ['Content-Type' => "application/json"]);
     }
 
