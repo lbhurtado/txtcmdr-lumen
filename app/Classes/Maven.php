@@ -168,8 +168,7 @@ class AutoRecruit extends Maven
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
         return Telehook::getInstance()
             ->addtoGroups($this->getAddtoGroups())
-            //->addMobileToGroups($mobile, 'temp1,temp2')
-            ->removeMobileFromGroups($mobile, 'temp1,temp2')
+            ->addMobileToGroups($mobile, 'temp1,temp2')
             ->getResponse();
     }
 }
@@ -206,6 +205,7 @@ class Recruit extends Maven
             ->setReply("The OTP was already sent to $mobile.")
             ->setForward($mobile, "Your OTP is $randomCode")
             ->setState("verify")
+            ->removeMobileFromGroups($mobile, 'temp1,temp2')
             ->addVariable("contact.vars.recruit|$mobile:pending,recruit");
 
         return Telehook::getInstance()
