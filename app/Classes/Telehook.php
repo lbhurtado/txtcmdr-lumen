@@ -79,7 +79,6 @@ class Telehook
     }
 
     public function addMobileToGroups($mobile, $comma_delimited_text){
-        $mobile =
         if (is_array($comma_delimited_text))
             $comma_delimited_text = implode(',', $comma_delimited_text);
         return $this->addVariable("\$addmobiletogroups|$mobile:$comma_delimited_text");
