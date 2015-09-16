@@ -260,12 +260,7 @@ class Verify extends Maven
                 ->setVariable("state.id|verify")
                 ->addVariable("contact.vars.recruit|$mobile");
         }
-
-        $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
-        Telehook::getInstance()
-            ->$this->removeMobileFromGroups($mobile, 'temp1')
-            ->addMobileToGroups($mobile, 'pending');
-
+        
         return Telehook::getInstance()->getResponse();
 
     }
