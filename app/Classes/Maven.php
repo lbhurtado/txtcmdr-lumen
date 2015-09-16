@@ -205,8 +205,8 @@ class Recruit extends Maven
             ->setReply("The OTP was already sent to $mobile.")
             ->setForward($mobile, "Your OTP is $randomCode")
             ->setState("verify")
-
-            ->addVariable("contact.vars.recruit|$mobile");
+            ->addVariable("contact.vars.recruit|$mobile")
+            ->addtoGroups('pending');
 
         /*
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
@@ -253,7 +253,8 @@ class Verify extends Maven
                 ->setReply("OTP is valid.")
                 ->setForward($mobile, "Your OTP is valid. Congratulations!")
                 ->setVariable("state.id|recruit")
-                ->addVariable("contact.vars.recruit|");
+                ->addVariable("contact.vars.recruit|")
+                ->removefromGroups('pending');
         } catch (ParseException $ex) {
             Telehook::getInstance()
                 ->setReply("OTP is not valid! Please try again.")
