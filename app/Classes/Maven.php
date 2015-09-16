@@ -259,6 +259,10 @@ class Verify extends Maven
                 ->addVariable("contact.vars.recruit|$mobile");
         }
 
+        $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
+        Telehook::getInstance()
+            ->transferMobile($mobile, 'temp1' ,'pending');
+
         return Telehook::getInstance()->getResponse();
 
     }

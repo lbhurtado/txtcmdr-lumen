@@ -75,19 +75,28 @@ class Telehook
     public function addtoGroups($comma_delimited_text){
         if (is_array($comma_delimited_text))
             $comma_delimited_text = implode(',', $comma_delimited_text);
+
         return $this->addVariable("\$addtogroups|$comma_delimited_text");
     }
 
     public function addMobileToGroups($mobile, $comma_delimited_text){
         if (is_array($comma_delimited_text))
             $comma_delimited_text = implode(',', $comma_delimited_text);
+
         return $this->addVariable("\$addmobiletogroups|$mobile:$comma_delimited_text");
     }
 
     public function removeMobileFromGroups($mobile, $comma_delimited_text){
         if (is_array($comma_delimited_text))
             $comma_delimited_text = implode(',', $comma_delimited_text);
+
         return $this->addVariable("\$removemobilefromgroups|$mobile:$comma_delimited_text");
+    }
+
+    public function transferMobile($mobile, $fromGroup, $toGroup){
+
+        return $this->removeMobileFromGroups($mobile, $fromGroup)
+            ->addMobileToGroups($mobile, $toGroup);
     }
 
     public static function getVariable($variable)
@@ -130,6 +139,7 @@ class Telehook
                 return true;
             }
         }
+
         return false;
     }
 
