@@ -35,15 +35,18 @@ abstract class Maven
 
     protected $description;
 
-    protected $reply;
+    protected $defaultReply;
 
-    protected $state;
+    protected $defaultNextState;
 
     protected $addtoGroups;
 
     protected function __construct(TextCommand $command)
     {
         $this->command = $command;
+        Telehook::getInstance()
+            ->setReply($this->getDefaultReply())
+            ->setState($this->getDefaultNextState());
     }
 
     public static function getInstance(Request $request)
@@ -124,20 +127,20 @@ abstract class Maven
         return $this->description;
     }
 
-    protected function getReply()
+    protected function getDefaultReply()
     {
         if (array_get($this->getCommand()->getParameters(), 'help'))
             return $this->getDescription();
         else
-            return $this->reply;
+            return $this->defaultReply;
     }
 
-    protected function getState()
+    protected function getDefaultNextState()
     {
         if (array_get($this->getCommand()->getParameters(), 'help'))
             return Telehook::$state;
         else
-            return $this->state;
+            return $this->defaultNextState;
     }
 
     protected function getAddtoGroups()
@@ -154,20 +157,15 @@ class AutoRecruit extends Maven
 
     protected $description = "Help";
 
-    protected $reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
+    protected $defaultReply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
 
-    protected $state = "recruit";
+    protected $defaultNextState = "recruit";
 
     protected $addtoGroups = "recruiter";
 
     public function getResponse()
     {
-        //$reply = "You are now in auto-recruit mode. Please enter mobile number of your recruit:";
-
         return Telehook::getInstance()
-            ->setReply($this->getReply())
-            ->setState($this->getState())
-            //->addVariable("\$addtogroups|testgroup")
             ->addtoGroups($this->getAddtoGroups())
             ->getResponse();
     }
