@@ -263,7 +263,7 @@ class Verify extends Maven
 
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
         Telehook::getInstance()
-            ->transferMobile($mobile, 'temp1' ,'pending');
+            ->transferMobile($mobile, 'temp1,temp2' ,'pending');
 
         return Telehook::getInstance()->getResponse();
 
