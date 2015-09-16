@@ -205,8 +205,12 @@ class Recruit extends Maven
             ->setReply("The OTP was already sent to $mobile.")
             ->setForward($mobile, "Your OTP is $randomCode")
             ->setState("verify")
-            ->removeMobileFromGroups($mobile, 'temp1,temp2')
+
             ->addVariable("contact.vars.recruit|$mobile:pending,recruit");
+
+        $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
+        Telehook::getInstance()
+            ->removeMobileFromGroups($mobile, 'temp1,temp2');
 
         return Telehook::getInstance()
             ->addtoGroups("recruiter")
