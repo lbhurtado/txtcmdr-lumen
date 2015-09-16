@@ -252,13 +252,14 @@ class Verify extends Maven
             Telehook::getInstance()
                 ->setReply("OTP is valid.")
                 ->setForward($mobile, "Your OTP is valid. Congratulations!")
-                ->setVariable("state.id|recruit")
+                ->setState("recruit")
                 ->addVariable("contact.vars.recruit|")
-                ->removefromGroups('pending');
+                ->removeMobileFromGroups($mobile, 'pending')
+                ->addMobileToGroups($mobile, "recruit");
         } catch (ParseException $ex) {
             Telehook::getInstance()
                 ->setReply("OTP is not valid! Please try again.")
-                ->setVariable("state.id|verify")
+                ->setState("verify")
                 ->addVariable("contact.vars.recruit|$mobile");
         }
 
