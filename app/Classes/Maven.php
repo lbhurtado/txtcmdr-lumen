@@ -208,9 +208,11 @@ class Recruit extends Maven
 
             ->addVariable("contact.vars.recruit|$mobile:pending,recruit");
 
+        /*
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
         Telehook::getInstance()
             ->removeMobileFromGroups($mobile, 'temp1,temp2');
+        */
 
         return Telehook::getInstance()
             ->addtoGroups("recruiter")
