@@ -206,7 +206,7 @@ class Recruit extends Maven
             ->setForward($mobile, "Your OTP is $randomCode")
             ->setState("verify")
 
-            ->addVariable("contact.vars.recruit|$mobile:pending,recruit");
+            ->addVariable("contact.vars.recruit|$mobile");
 
         /*
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
@@ -260,7 +260,7 @@ class Verify extends Maven
                 ->setVariable("state.id|verify")
                 ->addVariable("contact.vars.recruit|$mobile");
         }
-        
+
         return Telehook::getInstance()->getResponse();
 
     }
