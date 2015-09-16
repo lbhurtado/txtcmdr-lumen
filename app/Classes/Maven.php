@@ -206,7 +206,7 @@ class Recruit extends Maven
             ->setForward($mobile, "Your OTP is $randomCode")
             ->setState("verify")
             ->addVariable("contact.vars.recruit|$mobile")
-            ->addtoGroups('pending');
+            ->addMobileToGroups($mobile, "pending");
 
         /*
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
