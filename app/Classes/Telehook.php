@@ -84,6 +84,12 @@ class Telehook
         return $this->addVariable("\$addmobiletogroups|$mobile:$comma_delimited_text");
     }
 
+    public function removeMobileFromGroups($mobile, $comma_delimited_text){
+        if (is_array($comma_delimited_text))
+            $comma_delimited_text = implode(',', $comma_delimited_text);
+        return $this->addVariable("\$removemobilefromgroups|$mobile:$comma_delimited_text");
+    }
+
     public static function getVariable($variable)
     {
         $result = static::$request->input($variable);

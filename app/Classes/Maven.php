@@ -168,7 +168,8 @@ class AutoRecruit extends Maven
         $mobile = MobileAddress::getInstance('09173011987')->getServiceNumber();
         return Telehook::getInstance()
             ->addtoGroups($this->getAddtoGroups())
-            ->addMobileToGroups($mobile, 'temp1,temp2')
+            //->addMobileToGroups($mobile, 'temp1,temp2')
+            ->removeMobileFromGroups($mobile, 'temp1,temp2')
             ->getResponse();
     }
 }
