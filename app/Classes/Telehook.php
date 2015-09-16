@@ -55,7 +55,7 @@ class Telehook
     {
         static::$variables = array();
         $var = explode('|', $pipe_delimited_text);
-        static::$variables[$var[0]] = $var[1];
+        static::$variables[$var[0]] = $var[1] ?: null;
 
         return static::getInstance();
     }
