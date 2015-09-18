@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use App\Classes\Telerivet\Webhook;
 use App\Classes\Telerivet\TextCommand;
 use App\Classes\MobileAddress;
+use \Exception;
 use App\Classes\MobileAddressException;
 use App\Classes\Parse\Anyphone;
 use App\Classes\Random;
