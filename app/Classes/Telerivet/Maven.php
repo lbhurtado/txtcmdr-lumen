@@ -242,31 +242,30 @@ class Recruit extends Maven
 {
     public function getResponse()
     {
+        $somenumber = $this->somenumber; //from magic method __set
+
+        if (!$somenumber) {
+            return Webhook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
+        }
         try {
-            if ($somenumber = $this->somenumber) {
-                $randomCode =
-                    (!Anyphone::getInstance()->setUser($somenumber))
-                        ? Anyphone::getInstance()->signupParseUserWithRandomCode()
-                        : Anyphone::getInstance()->updateParseUserWithRandomCode();
+            $randomCode =
+                (!Anyphone::getInstance()->setUser($somenumber))
+                    ? Anyphone::getInstance()->signupParseUserWithRandomCode()
+                    : Anyphone::getInstance()->updateParseUserWithRandomCode();
 
-                $mobile = Anyphone::getInstance()->getMobile();
+            $mobile = Anyphone::getInstance()->getMobile();
 
-                Webhook::getInstance()
-                    ->setReply("The OTP was already sent to $mobile.")
-                    ->setForward($mobile, "Your OTP is $randomCode")
-                    ->setState("verify")
-                    ->addVariable("contact.vars.recruit|$mobile")
-                    ->addMobileToGroups($mobile, "pending");
-            }
-            else
-                throw new \Exception();
+            Webhook::getInstance()
+                ->setReply("The OTP was already sent to $mobile.")
+                ->setForward($mobile, "Your OTP is $randomCode")
+                ->setState("verify")
+                ->addVariable("contact.vars.recruit|$mobile")
+                ->addMobileToGroups($mobile, "pending");
         } catch (MobileAddressException $ex) {
             Webhook::getInstance()
                 ->setReply("Mobile phone is not valid! Please try again.")
                 ->setState(Webhook::RECRUITING)
                 ->addVariable("contact.vars.recruit|");
-        } catch (Exception $ex) {
-            return Webhook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
         }
 
         return Webhook::getInstance()
