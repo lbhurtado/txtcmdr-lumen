@@ -3,6 +3,10 @@
 
 namespace App\Classes;
 
+use App\Classes\CustomException;
+
+class MobileAddressException extends CustomException {}
+
 abstract class MobileAddress {
 	//const REGEX_MOBILE = "/((?<country>0|63|\+63)(?<telco>9\d{2})(?<number>\d{7}))|((^s?)(?<operator>\d{3,4}$))/";
     protected $matches;

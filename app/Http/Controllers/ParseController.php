@@ -13,7 +13,7 @@ use Parse\ParseQuery;
 use Parse\ParseCloud;
 use Parse\ParseACL;
 use Parse\ParseException;
-use App\Classes\Telehook;
+use App\Classes\Webhook;
 use App\Classes\MobileAddress;
 
 define('SECRET', env('PARSE_OTP_PREFIX'));
@@ -30,7 +30,7 @@ class ParseController extends Controller
     private $request;
 
     public function __construct(Request $request){
-        if (Telehook::isAuthorized($request))
+        if (Webhook::isAuthorized($request))
             $this->request = $request;
     }
 
@@ -119,14 +119,14 @@ class ParseController extends Controller
 
         //return redirect('cluster/3');
 
-        if (Telehook::isAuthorized($request)) {
-            switch (Telehook::$state) {
+        if (Webhook::isAuthorized($request)) {
+            switch (Webhook::$state) {
                 case NO_STATE:
-                    switch (strtoupper(Telehook::$word1)) {
+                    switch (strtoupper(Webhook::$word1)) {
                         case 'RECRUIT':
-                            ($mobile = MobileAddress::getInstance(Telehook::$remainder1)->getServiceNumber())
+                            ($mobile = MobileAddress::getInstance(Webhook::$remainder1)->getServiceNumber())
                                 ? $this->recruit($request, $mobile)
-                                : Telehook::getInstance()
+                                : Webhook::getInstance()
                                 ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
                                 ->setVariable('state.id|recruiting');
                             break;
@@ -141,21 +141,21 @@ class ParseController extends Controller
             }
         }
 
-        return Telehook::getInstance()->getResponse();
+        return Webhook::getInstance()->getResponse();
     }
 
     public
     function recruit($somenumber = null)
     {
         try {
-            if (Telehook::isAuthorized($this->request)) {
-                $mobile = MobileAddress::getInstance($somenumber ?: Telehook::$word1)->getServiceNumber();
+            if (Webhook::isAuthorized($this->request)) {
+                $mobile = MobileAddress::getInstance($somenumber ?: Webhook::$word1)->getServiceNumber();
                 if ($mobile) {
                     $randomCode =
                         ($user = ParseUser::query()->equalTo(PARSE_USERNAME, $mobile)->first(PARSE_USE_MASTERKEY))
                             ? $this->updateParseUserWithRandomCode($user)
                             : $this->signupParseUserWithRandomCode($mobile);
-                    Telehook::getInstance()
+                    Webhook::getInstance()
                         ->setReply("The OTP was already sent to $mobile.")
                         ->setForward("$mobile|Your OTP is $randomCode")
                         ->setVariable("state.id|verifying")
@@ -164,31 +164,31 @@ class ParseController extends Controller
                     $msg = is_int($somenumber)
                         ? "$somenumber is not a valid mobile number. "
                         : "You are now in recruiting mode. Please enter mobile number of your recruit:";
-                    Telehook::getInstance()
+                    Webhook::getInstance()
                         ->setReply($msg)
                         ->setVariable("state.id|recruit");
                 }
             }
             else {
-                return Telehook::getInstance()->getDebugResponse('not authorized');
+                return Webhook::getInstance()->getDebugResponse('not authorized');
             }
         }
         catch (ParseException $ex) {
-            Telehook::getDebugResponse('recruit');
+            Webhook::getDebugResponse('recruit');
         }
 
-        return Telehook::getInstance()->getResponse();
+        return Webhook::getInstance()->getResponse();
     }
 
     public
     function autoRecruit()
     {
-        if (Telehook::isAuthorized($this->request)) {
-            Telehook::getInstance()
+        if (Webhook::isAuthorized($this->request)) {
+            Webhook::getInstance()
                 ->setReply('You are now in recruiting mode. Please enter mobile number of your recruit:')
                 ->setVariable('state.id|recruit');
         }
-        return Telehook::getInstance()->getResponse();
+        return Webhook::getInstance()->getResponse();
     }
 
     private
@@ -199,7 +199,7 @@ class ParseController extends Controller
             $user->set('password', SECRET . $randomCode);
             $user->save(PARSE_USE_MASTERKEY);
         } catch (ParseException $ex) {
-            Telehook::getInstance()
+            Webhook::getInstance()
                 ->setReply("Something is wrong! Error code " . $ex->getMessage());
         }
 
@@ -226,7 +226,7 @@ class ParseController extends Controller
         try {
             $user->signUp(PARSE_USE_MASTERKEY);
         } catch (ParseException $ex) {
-            Telehook::getInstance()
+            Webhook::getInstance()
                 ->setReply("Something is wrong! Error code " . $ex->getMessage());
         }
 
@@ -248,18 +248,18 @@ class ParseController extends Controller
                 $user->set('phone', $mobile);
                 $user->setPassword(SECRET . $this->getRandomCode());
                 $user->save();
-                Telehook::getInstance()
+                Webhook::getInstance()
                     ->setReply("OTP is valid.")
                     ->setForward("$mobile|Your OTP is valid. Congratulations!")
                     ->setVariable("state.id|recruit")
                     ->addVariable("contact.vars.recruit|");
             } catch (ParseException $ex) {
-                Telehook::getInstance()
+                Webhook::getInstance()
                     ->setReply("OTP is not valid! Please try again.")
                     ->setVariable("state.id|verify")
                     ->addVariable("contact.vars.recruit|$mobile");
             } finally {
-                return Telehook::getInstance()->getResponse();
+                return Webhook::getInstance()->getResponse();
             }
         }
 

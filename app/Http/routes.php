@@ -14,7 +14,7 @@
 use Illuminate\Http\Request;
 use Parse\ParseClient;
 use Parse\ParseObject;
-use App\Classes\Telehook;
+use App\Classes\Webhook;
 use Illuminate\Support\Facades\View;
 
 class Pop extends Illuminate\Database\Eloquent\Model
@@ -96,7 +96,7 @@ $app->group(['prefix'=>'telerivet'], function ($app) {
 
     $app->get('autorecruit', [
         'as' => 'autorecruit', function (){
-            return Telehook::getInstance()->getDebugResponse('autorecruit');
+            return Webhook::getInstance()->getDebugResponse('autorecruit');
         }
     ]);
 
