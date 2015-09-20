@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Telerivet\MavenFactory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Classes\Telerivet\Maven;
@@ -25,19 +26,16 @@ class TelerivetController extends Controller
 
     public function webhook()
     {
-        Random::seed(537);
+        list($usec, $sec) = explode(' ', microtime());
+        $seed = (float)$sec + ((float)$usec * 100000);
+        Random::seed($seed);
 
-        return Maven::getInstance($this->request)->getResponse();
+        return MavenFactory::getMaven($this->request)->getResponse();
 
-        // set seed
-
-
-        /*
-// echo 10 numbers between 1 and 100
-        for ($i = 0; $i < 10; $i++) {
-            echo Random::num(1000, 9999) . '<br />';
+        // echo 10 numbers between 1 and 100
+        for ($i = 0; $i < 100; $i++) {
+            echo Random::num(1000, 9999) . "\n";
         }
-        */
-        return Anyphone::getInstance()->signupParseUserWithRandomCode('09189362340');
+
     }
 }

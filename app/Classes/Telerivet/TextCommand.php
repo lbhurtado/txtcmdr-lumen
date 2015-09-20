@@ -12,11 +12,13 @@ use Illuminate\Http\Request;
 use App\Classes\Telerivet\Webhook;
 use App\Classes\CustomException;
 
-class TextCommandException extends CustomException {}
+class TextCommandException extends CustomException
+{
+}
 
 class TextCommand
 {
-    const TELEHOOK_NO_STATE = '';
+    const WEBHOOK_CONTACT_NO_STATE = '';
 
     protected $keywords = [
         'recruit' => [
@@ -36,21 +38,19 @@ class TextCommand
 
     public function __construct(Request $request)
     {
-            if (Webhook::isAuthorized($request))
-                $this->conjure();
-            else
-                throw new WebhookException();
+        if (Webhook::isAuthorized($request))
+            $this->conjure();
+        else
+            throw new TextCommandException();
     }
 
     protected function conjure()
     {
         switch (Webhook::$state) {
-            case TextCommand::TELEHOOK_NO_STATE:
+            case TextCommand::WEBHOOK_CONTACT_NO_STATE:
                 $this->keyword = Webhook::$keyword;
                 $this->parameters = Webhook::$arguments;
-
                 break;
-
             default:
                 $this->keyword = Webhook::$state;
                 $pattern = array_get($this->keywords, "$this->keyword.text_pattern");
@@ -62,16 +62,14 @@ class TextCommand
                         : array();
                     $parameters = array_get($this->keywords, "$this->keyword.http_parameters");
                     if (is_array($parameters)) {
-                        foreach (array_get($this->keywords, "$this->keyword.http_parameters") as $parameter => $array_shortcut) {
+                        foreach (array_get($this->keywords, "$this->keyword.http_parameters")
+                                 as $parameter => $array_shortcut) {
                             $value = array_get(Webhook::$inputs, $array_shortcut);
                             $this->parameters[$parameter] = $value;
                         }
                     }
-                }
-                else {
+                } else
                     throw new TextCommandException();
-                }
-                break;
         }
     }
 

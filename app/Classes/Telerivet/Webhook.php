@@ -17,7 +17,7 @@ use App\Classes\CustomException;
  * @package App\Classes
  */
 
-class WebhookException extends CustomException {}
+class UnauthorizedException extends CustomException {}
 
 class Webhook
 {
@@ -65,7 +65,8 @@ class Webhook
             }
         }
         else
-            throw new WebhookException();
+            throw new UnauthorizedException();
+            //throw new \Exception();
 
         return false;
     }
@@ -184,6 +185,11 @@ class Webhook
             $comma_delimited_text = implode(',', $comma_delimited_text);
 
         return $this->addVariable("\$removemobilefromgroups|$mobile:$comma_delimited_text");
+    }
+
+    public function loadMobile($mobile)
+    {
+        return $this->addVariable("\$loadmobile|$mobile");
     }
 
     public function getHandled()
