@@ -16,9 +16,15 @@ class TextCommandException extends CustomException
 {
 }
 
+/**
+ * Class TextCommand
+ * @package App\Classes\Telerivet
+ */
 class TextCommand
 {
     const WEBHOOK_CONTACT_NO_STATE = '';
+
+    private $_data;
 
     protected $keywords = [
         'recruit' => [
@@ -44,18 +50,33 @@ class TextCommand
             throw new TextCommandException();
     }
 
+    public function __set($property, $value)
+    {
+        return $this->_data[$property] = $value;
+    }
+
+    public function __get($property)
+    {
+        return array_key_exists($property, $this->_data)
+            ? $this->_data[$property]
+            : null;
+    }
+
     protected function conjure()
     {
-        switch (Webhook::$state) {
+        //switch (Webhook::$state) {
+        switch (Webhook::getState()) {
             case TextCommand::WEBHOOK_CONTACT_NO_STATE:
                 $this->keyword = Webhook::$keyword;
                 $this->parameters = Webhook::$arguments;
                 break;
             default:
-                $this->keyword = Webhook::$state;
+                //$this->keyword = Webhook::$state;
+                $this->keyword = Webhook::getState();
                 $pattern = array_get($this->keywords, "$this->keyword.text_pattern");
                 if ($pattern) {
-                    $this->parameters = preg_match($pattern, Webhook::$content, $matches)
+                    //$this->parameters = preg_match($pattern, Webhook::$content, $matches)
+                    $this->parameters = preg_match($pattern, Webhook::getContent(), $matches)
                         ? array_where($matches, function ($key) {
                             return preg_match("/^[a-zA-Z]*$/", $key);
                         })
@@ -64,13 +85,15 @@ class TextCommand
                     if (is_array($parameters)) {
                         foreach (array_get($this->keywords, "$this->keyword.http_parameters")
                                  as $parameter => $array_shortcut) {
-                            $value = array_get(Webhook::$inputs, $array_shortcut);
+                            //$value = array_get(Webhook::$inputs, $array_shortcut);
+                            $value = array_get(Webhook::getInputs(), $array_shortcut);
                             $this->parameters[$parameter] = $value;
                         }
                     }
                 } else
                     throw new TextCommandException();
         }
+        $this->_data = $this->getParameters();
     }
 
     public function getKeyword()

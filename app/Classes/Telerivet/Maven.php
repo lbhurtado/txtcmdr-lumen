@@ -12,11 +12,6 @@ use Illuminate\Http\Request;
 use App\Classes\Telerivet\Webhook;
 use App\Classes\Telerivet\TextCommand;
 
-interface WebhookResponse
-{
-    function getResponse();
-}
-
 abstract class Maven implements WebhookResponse
 {
     private $_data;
@@ -33,11 +28,14 @@ abstract class Maven implements WebhookResponse
 
     public function __construct(TextCommand $command)
     {
+
         $this->command = $command;
         $this->_data = $this->getCommand()->getParameters();
+
         Webhook::getInstance()
             ->setReply($this->getDefaultReply())
-            ->setState($this->getDefaultNextState());
+            ->setState($this->getDefaultNextState())
+            ->addtoGroups($this->addtoGroups);
     }
 
     public function __set($property, $value)
@@ -73,7 +71,7 @@ abstract class Maven implements WebhookResponse
     protected function getDefaultNextState()
     {
         if (array_get($this->getCommand()->getParameters(), 'help'))
-            return Webhook::$state;
+            return Webhook::getState();
         else
             return $this->defaultNextState;
     }

@@ -9,7 +9,8 @@
 namespace App\Classes\Telerivet;
 
 use Illuminate\Http\Request;
-use App\Classes\Telerivet\TextCommand;
+use App\Classes\Telerivet\UnauthorizedException;
+use app\Classes\Telerivet\Keywords\VerifyException;
 
 class MavenFactory
 {
@@ -23,14 +24,19 @@ class MavenFactory
             $params = array($command);
             $class = static::PREFIX . $command->getKeyword();
             $reflection_class = new \ReflectionClass($class);
-        }
-        catch (UnauthorizedException $ex) {
+        } catch (UnauthorizedException $ex) {
             $class = static::PREFIX . "Unauthorized";
             $reflection_class = new \ReflectionClass($class);
-        }
-        catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             $class = static::PREFIX . "Nuisance";
             $reflection_class = new \ReflectionClass($class);
+        } finally {
+            try {
+                return $reflection_class->newInstanceArgs($params);
+            } catch (VerifyException $ex) {
+                $class = static::PREFIX . "Invalid";
+                $reflection_class = new \ReflectionClass($class);
+            }
         }
 
         return $reflection_class->newInstanceArgs($params);

@@ -14,25 +14,32 @@ use App\Classes\Parse\Anyphone;
 
 class Recruit extends Maven
 {
+    protected $defaultReply = "The OTP was already sent to mobile device.";
+
+    protected $defaultNextState = Webhook::VERIFYING;
+
+    protected $addtoGroups = "recruiter";
+
     public function getResponse()
     {
-        $somenumber = $this->somenumber; //from magic method __set
-
-        if (!$somenumber) {
-            return Webhook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
-        }
         try {
             $randomCode =
-                (!Anyphone::getInstance()->setUser($somenumber))
+                /*
+                 * Check if $somenumber (taken from TextCommand magic setter)
+                 * is already a user in Parse.
+                 */
+                (!Anyphone::getInstance()->setUser($this->getCommand()->somenumber))
+                /*
+                 * If not, automatically sign up the user with OTP.
+                 * Otherwise, generate a new OTP for the user.
+                 */
                     ? Anyphone::getInstance()->signupParseUserWithRandomCode()
                     : Anyphone::getInstance()->updateParseUserWithRandomCode();
 
             $mobile = Anyphone::getInstance()->getMobile();
 
             Webhook::getInstance()
-                ->setReply("The OTP was already sent to $mobile.")
                 ->setForward($mobile, "Your OTP is $randomCode")
-                ->setState("verify")
                 ->addVariable("contact.vars.recruit|$mobile")
                 ->addMobileToGroups($mobile, "pending");
         } catch (MobileAddressException $ex) {
@@ -42,8 +49,6 @@ class Recruit extends Maven
                 ->addVariable("contact.vars.recruit|");
         }
 
-        return Webhook::getInstance()
-            ->addtoGroups("recruiter")
-            ->getResponse();
+        return Webhook::getInstance()->getResponse();
     }
 }

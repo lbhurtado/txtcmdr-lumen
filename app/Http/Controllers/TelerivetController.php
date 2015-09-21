@@ -30,7 +30,12 @@ class TelerivetController extends Controller
         $seed = (float)$sec + ((float)$usec * 100000);
         Random::seed($seed);
 
-        return MavenFactory::getMaven($this->request)->getResponse();
+        try {
+            return MavenFactory::getMaven($this->request)->getResponse();
+        }
+        catch (\Exception $ex) {
+            dd($ex);
+        }
 
         // echo 10 numbers between 1 and 100
         for ($i = 0; $i < 100; $i++) {

@@ -8,50 +8,63 @@
 
 namespace app\Classes\Telerivet\Keywords;
 
-use \App\Classes\Telerivet\Maven;
+use App\Classes\CustomException;
+use App\Classes\Telerivet\Maven;
 use App\Classes\Telerivet\Webhook;
 use App\Classes\Parse\Anyphone;
+use App\Classes\Telerivet\TextCommand;
+
+class VerifyException extends CustomException
+{
+
+}
 
 class Verify extends Maven
 {
+    protected $defaultReply = "OTP is valid.";
+
+    protected $defaultNextState = Webhook::RECRUITING;
+
+    /**
+     * @param TextCommand $command
+     * @throws VerifyException
+     *
+     * Override __construct to include verification of OTP.
+     * Will be using parameters from magic method __set in
+     * TextCommand class. It raises an exception to allow
+     * the MavenFactory class to instantiate the Invalid
+     * class.
+     */
+    public function __construct(TextCommand $command)
+    {
+        parent::__construct($command);
+
+        if (!Anyphone::getInstance()->validateUser(
+            $this->getCommand()->somenumber, // from magic method __set
+            $this->getCommand()->allegedotp) // from magic method __set
+        ) throw new VerifyException("Huy, may mali dito sa __construct ng Maven!");
+
+        /*
+         * Scramble the password once the previous entry succeeds.
+         * Otherwise, the OTP should be untouched for retries.
+         */
+        Anyphone::getInstance()->scrambleParseUserPassword();
+    }
+
     public function getResponse()
     {
-        $somenumber = $this->somenumber; //from magic method __set
-        $allegedotp = $this->allegedotp; //from magic method __set
+        /*
+         * If Anyphone::getInstance()->validateUser succeeds,
+         * $somenumber will become accessible as getMobile()
+         */
+        $mobile = Anyphone::getInstance()->getMobile();
+        Webhook::getInstance()
+            ->setForward($mobile, "Your OTP is valid. Congratulations!")
+            ->removeMobileFromGroups($mobile, 'pending')
+            ->addMobileToGroups($mobile, "recruit");
 
-        if (!$allegedotp) {
-            return Webhook::getInstance()->getDebugResponse("Error! No allegedotp parameter in http.");
-        }
-
-        if (!$somenumber) {
-            return Webhook::getInstance()->getDebugResponse("Error! No somenumber parameter in http.");
-        }
-
-        try {
-            if (Anyphone::getInstance()->validateUser($somenumber, $allegedotp)) {
-                Anyphone::getInstance()->scrambleParseUserPassword();
-                $mobile = Anyphone::getInstance()->getMobile();
-                Webhook::getInstance()
-                    ->setReply("OTP is valid.")
-                    ->setForward($mobile, "Your OTP is valid. Congratulations!")
-                    ->setState(Webhook::RECRUITING)
-                    ->addVariable("contact.vars.recruit|")
-                    ->removeMobileFromGroups($mobile, 'pending')
-                    ->addMobileToGroups($mobile, "recruit");
-            } else {
-                throw new ParseException();
-            }
-
-        } catch (MobileAddressException $ex) {
-            return Webhook::getInstance()->getDebugResponse("Error! Mobile number is not valid.");
-        } catch (ParseException $ex) {
-            Webhook::getInstance()
-                ->setReply("OTP is not valid! Please try again.")
-                ->setState(Webhook::VERIFYING)
-                ->addVariable("contact.vars.recruit|$mobile");
-        }
-
-        return Webhook::getInstance()->getResponse();
-
+        return Webhook::getInstance()
+            ->addVariable("contact.vars.recruit|")
+            ->getResponse();
     }
 }

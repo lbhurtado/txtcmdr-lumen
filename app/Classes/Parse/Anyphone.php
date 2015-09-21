@@ -21,7 +21,10 @@ use App\Classes\MobileAddressException;
 
 define('SECRET', env('PARSE_OTP_PREFIX'));
 
-class AnyphoneException extends CustomException {}
+class AnyphoneException extends CustomException
+{
+
+}
 
 class Anyphone
 {
@@ -124,30 +127,32 @@ class Anyphone
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         if (!$mobile)
             throw new MobileAddressException();
-
-        return ParseCloud::run(
-            'logIn',
-            array(
-                'codeEntry' => $allegedOTP,
-                'phoneNumber' => $mobile
-            )
-        );
+        try {
+            return ParseCloud::run(
+                'logIn',
+                array(
+                    'codeEntry' => $allegedOTP,
+                    'phoneNumber' => $mobile
+                )
+            );
+        }
+        catch (\Exception $ex) {
+           return null;
+        }
     }
 
     public function validateUser($somenumber, $allegedOTP)
     {
         $this->user = null;
         if ($this->setMobile($somenumber)) {
-            $sessionToken = $this->getSessionToken($this->getMobile(), $allegedOTP);
-            $user = ParseUser::become($sessionToken);
-            if (!$user)
-                throw new ParseException();
-            /*
-            $user->set('phone', $somenumber);
-            $user->setPassword(SECRET . Random::num(Anyphone::RANDOM_FLOOR, Anyphone::RANDOM_CEILING));
-            $user->save();
-            */
-            $this->user = $user;
+
+            try {
+                $sessionToken = $this->getSessionToken($this->getMobile(), $allegedOTP);
+                $user = ParseUser::become($sessionToken);
+                $this->user = $user;
+            } catch (\Exception $ex) {
+                return false;
+            }
         }
 
         return $this;
