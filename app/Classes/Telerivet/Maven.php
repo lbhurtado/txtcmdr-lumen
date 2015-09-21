@@ -14,8 +14,6 @@ use App\Classes\Telerivet\TextCommand;
 
 abstract class Maven implements WebhookResponse
 {
-    private $_data;
-
     private $command;
 
     protected $description;
@@ -28,26 +26,12 @@ abstract class Maven implements WebhookResponse
 
     public function __construct(TextCommand $command)
     {
-
         $this->command = $command;
-        $this->_data = $this->getCommand()->getParameters();
 
         Webhook::getInstance()
             ->setReply($this->getDefaultReply())
             ->setState($this->getDefaultNextState())
             ->addtoGroups($this->addtoGroups);
-    }
-
-    public function __set($property, $value)
-    {
-        return $this->_data[$property] = $value;
-    }
-
-    public function __get($property)
-    {
-        return array_key_exists($property, $this->_data)
-            ? $this->_data[$property]
-            : null;
     }
 
     protected function getCommand()
@@ -76,7 +60,7 @@ abstract class Maven implements WebhookResponse
             return $this->defaultNextState;
     }
 
-    protected function getAddtoGroups()
+    protected function getAddToGroups()
     {
         if (array_get($this->getCommand()->getParameters(), 'help'))
             return '';

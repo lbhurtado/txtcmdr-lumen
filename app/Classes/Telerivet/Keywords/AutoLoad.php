@@ -8,18 +8,19 @@
 
 namespace app\Classes\Telerivet\Keywords;
 
-use \App\Classes\Telerivet\Maven;
+use \App\Classes\Telerivet\Keywords\Auto;
 use App\Classes\Telerivet\Webhook;
 
-class LoadMobile extends Maven
+class AutoLoad extends Auto
 {
     public function getResponse()
     {
+        dd($this->name);
         if (
-            ($mobile = $this->mobile) and
-            ($amount = $this->amount) and
-            ($reply = $this->reply) and
-            ($message = $this->message)
+            ($mobile = $this->getCommand()->mobile) and
+            ($amount = $this->getCommand()->amount) and
+            ($reply = $this->getCommand()->reply) and
+            ($message = $this->getCommand()->message)
         ) {
             return Webhook::getInstance()
                 ->setReply($reply)
@@ -27,6 +28,7 @@ class LoadMobile extends Maven
                 ->loadMobile("$mobile:$amount")
                 ->getResponse();
         }
+
         return Webhook::getInstance();
     }
 }

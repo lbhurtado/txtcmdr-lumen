@@ -64,18 +64,15 @@ class TextCommand
 
     protected function conjure()
     {
-        //switch (Webhook::$state) {
         switch (Webhook::getState()) {
             case TextCommand::WEBHOOK_CONTACT_NO_STATE:
                 $this->keyword = Webhook::$keyword;
                 $this->parameters = Webhook::$arguments;
                 break;
             default:
-                //$this->keyword = Webhook::$state;
                 $this->keyword = Webhook::getState();
                 $pattern = array_get($this->keywords, "$this->keyword.text_pattern");
                 if ($pattern) {
-                    //$this->parameters = preg_match($pattern, Webhook::$content, $matches)
                     $this->parameters = preg_match($pattern, Webhook::getContent(), $matches)
                         ? array_where($matches, function ($key) {
                             return preg_match("/^[a-zA-Z]*$/", $key);
@@ -85,7 +82,6 @@ class TextCommand
                     if (is_array($parameters)) {
                         foreach (array_get($this->keywords, "$this->keyword.http_parameters")
                                  as $parameter => $array_shortcut) {
-                            //$value = array_get(Webhook::$inputs, $array_shortcut);
                             $value = array_get(Webhook::getInputs(), $array_shortcut);
                             $this->parameters[$parameter] = $value;
                         }

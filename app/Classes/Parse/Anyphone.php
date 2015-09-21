@@ -42,6 +42,16 @@ class Anyphone
 
     private $mobile;
 
+    private static $randomCode = 1991;
+
+    protected function __construct(){
+        static::$randomCode = Random::num(Anyphone::RANDOM_FLOOR, Anyphone::RANDOM_CEILING);
+    }
+
+    public static function getRandomCode(){
+        return static::$randomCode;
+    }
+
     public static function getInstance()
     {
         if (static::$_instance === null) {
@@ -66,6 +76,7 @@ class Anyphone
         return $this->mobile;
     }
 
+
     public function setUser($somenumber){
         $this->user = null;
         if ($this->setMobile($somenumber)) {
@@ -85,45 +96,49 @@ class Anyphone
         return $this->user;
     }
 
-    public function signupParseUserWithRandomCode($testcode = null)
+    public function signupParseUserWithRandomCode()
     {
-        $randomCode = Random::num(Anyphone::RANDOM_FLOOR, Anyphone::RANDOM_CEILING);
-
         $this->user = new ParseUser();
         $this->user->setUsername($this->mobile);
-        $this->user->setPassword(SECRET . $randomCode);
+        $this->user->setPassword(SECRET . static::getRandomCode());
         $this->user->setACL(new ParseACL());
         try {
             $this->user->signUp(self::PARSE_USE_MASTERKEY);
         } catch (ParseException $ex) {
-
+            return false;
         }
-        if ($testcode)
-            return $testcode;
 
-        return $randomCode;
+        return static::getRandomCode();
     }
 
-    public function updateParseUserWithRandomCode($testcode = null)
+    public function updateParseUserWithRandomCode()
     {
-        $randomCode = Random::num(Anyphone::RANDOM_FLOOR, Anyphone::RANDOM_CEILING);
-
         try {
-            $this->getUser()->set('password', SECRET . $randomCode);
+            $this->getUser()->set('password', SECRET . static::getRandomCode());
             $this->getUser()->save(Anyphone::PARSE_USE_MASTERKEY);
         } catch (ParseException $ex) {
-            echo $ex.code();
+            return false;
         }
 
-        if ($testcode)
-            return $testcode;
-
-        return $randomCode;
+        return static::getRandomCode();
     }
 
+    /**
+     * @param $somenumber
+     * @param $allegedOTP
+     * @return mixed|null
+     * @throws MobileAddressException
+     *
+     * Validate the Parse user using the phone number and sms OTP.
+     * Refactored as a separate function to accomodate different
+     * authentication methods in the future.
+     */
     protected function getSessionToken($somenumber, $allegedOTP)
     {
-        //$user = ParseUser::logIn($mobile, SECRET . $extracted_allegedotp);  //use PARSE_USE_MASTERKEY
+        /*
+         * Alternative validation of user
+         * $user = ParseUser::logIn($somenumber, SECRET . $allegedOTP);
+         */
         $mobile = MobileAddress::getInstance($somenumber)->getServiceNumber();
         if (!$mobile)
             throw new MobileAddressException();
@@ -145,11 +160,9 @@ class Anyphone
     {
         $this->user = null;
         if ($this->setMobile($somenumber)) {
-
             try {
                 $sessionToken = $this->getSessionToken($this->getMobile(), $allegedOTP);
-                $user = ParseUser::become($sessionToken);
-                $this->user = $user;
+                $this->user = ParseUser::become($sessionToken);
             } catch (\Exception $ex) {
                 return false;
             }
@@ -159,6 +172,7 @@ class Anyphone
     }
 
     public function scrambleParseUserPassword() {
+        static::$randomCode = Random::num(Anyphone::RANDOM_FLOOR, Anyphone::RANDOM_CEILING);
         $this->updateParseUserWithRandomCode();
 
         return $this;
